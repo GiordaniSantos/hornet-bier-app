@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Image, StyleSheet } from 'react-native';
+import { FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 import { Drawer } from 'expo-router/drawer';
 import { DrawerContentScrollView, DrawerItemList, DrawerContentComponentProps } from '@react-navigation/drawer';
 import { Link } from 'expo-router';
@@ -9,11 +9,11 @@ import Logo from '../../../assets/images/nova-logo.png';
 
 const DrawerContent = (props: DrawerContentComponentProps) => {
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ alignItems: 'center', padding: 20 }}>
+    <View style={styles.container}>
+      <View style={styles.logoContainer}>
         <Image
           source={Logo}
-          style={{ width: 280, height: 160 }}
+          style={styles.logo}
           resizeMode='contain'
         />
       </View>
@@ -28,9 +28,16 @@ const DrawerLayout = () => (
   <Drawer 
     screenOptions={{ 
       drawerActiveBackgroundColor: '#FFF',
+      drawerActiveTintColor: '#000',
+      drawerInactiveTintColor: '#FFF',
       drawerStyle: {
         backgroundColor: '#000'
-      }
+      },
+      headerRight: () => (
+        <Link href="/modal" asChild>
+          <HeaderButton />
+        </Link>
+      ),
     }}
     drawerContent={(props) => 
       <DrawerContent {...props} />
@@ -39,17 +46,41 @@ const DrawerLayout = () => (
     <Drawer.Screen
       name="index"
       options={{
-        headerTitle: 'Home',
-        drawerLabel: 'Home',
-        drawerIcon: ({ size, color }) => <Ionicons name="home-outline" size={size} color={color} />,
-        headerRight: () => (
-          <Link href="/modal" asChild>
-            <HeaderButton />
-          </Link>
-        ),
+        headerTitle: 'Início',
+        drawerLabel: 'Início',
+        drawerItemStyle: styles.drawerItemStyle,
+        drawerIcon: ({ size, color }) => <FontAwesome5 name="home" size={size} color={color} />,
+      }}
+    />
+    <Drawer.Screen
+      name="clientes"
+      options={{
+        headerTitle: 'Clientes',
+        drawerLabel: 'Clientes',
+        drawerItemStyle: styles.drawerItemStyle,
+        drawerIcon: ({ size, color }) => <FontAwesome6 name="user-group" size={size} color={color} />,
       }}
     />
   </Drawer>
 );
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  logoContainer: {
+    alignItems: 'center', 
+    padding: 20 , 
+    borderBottomWidth: 1, 
+    borderBottomColor: 'rgb(230,230,230)'
+  },
+  logo: {
+    width: 280, 
+    height: 160 
+  },
+  drawerItemStyle:{
+    marginBottom: 10
+  }
+});
 
 export default DrawerLayout;
