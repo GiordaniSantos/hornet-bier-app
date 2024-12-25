@@ -5,7 +5,14 @@ import { Link } from 'expo-router';
 import { HeaderButton } from '../../components/HeaderButton';
 
 const DrawerLayout = () => (
-  <Drawer>
+  <Drawer 
+    screenOptions={{ 
+      drawerActiveBackgroundColor: '#FFF',
+      drawerStyle: {
+        backgroundColor: '#000'
+      }
+    }}
+  >
     <Drawer.Screen
       name="index"
       options={{
