@@ -45,6 +45,12 @@ const DrawerLayout = () => (
     }
   >
     <Drawer.Screen
+      name="index"
+      options={{
+        drawerItemStyle: { height: 0 }
+      }}
+    />
+    <Drawer.Screen
       name="ordem-servico"
       options={{
         headerTitle: 'Ordens de Serviço',

@@ -2,7 +2,6 @@ import { Stack } from 'expo-router';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { Container } from '@/src/components/Container';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { useState } from 'react';
 import { Link } from 'expo-router';
 
 export default function Home() {
@@ -84,13 +83,10 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     height: 230,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
     backgroundColor: '#fff',
     marginBottom: 15,
-    position: 'relative'
+    position: 'relative',
+    elevation: 2,
   },
   header: {
     flexDirection: 'row',
