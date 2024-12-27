@@ -26,6 +26,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
 
 const DrawerLayout = () => (
   <Drawer 
+    initialRouteName='ordem-servico'
     screenOptions={{ 
       drawerActiveBackgroundColor: '#FFF',
       drawerActiveTintColor: '#000',
@@ -44,10 +45,10 @@ const DrawerLayout = () => (
     }
   >
     <Drawer.Screen
-      name="index"
+      name="ordem-servico"
       options={{
-        headerTitle: 'Início',
-        drawerLabel: 'Início',
+        headerTitle: 'Ordens de Serviço',
+        drawerLabel: 'Ordens de Serviço',
         drawerItemStyle: styles.drawerItemStyle,
         drawerIcon: ({ size, color }) => <FontAwesome5 name="home" size={size} color={color} />,
       }}
