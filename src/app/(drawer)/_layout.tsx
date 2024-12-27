@@ -6,10 +6,12 @@ import { DrawerContentScrollView, DrawerItemList, DrawerContentComponentProps } 
 import { Link } from 'expo-router';
 import { HeaderButton } from '../../components/HeaderButton';
 import Logo from '../../../assets/images/nova-logo.png';
+import { StatusBar } from 'expo-status-bar';
 
 const DrawerContent = (props: DrawerContentComponentProps) => {
   return (
     <View style={styles.container}>
+      <StatusBar style="dark" />
       <View style={styles.logoContainer}>
         <Image
           source={Logo}
