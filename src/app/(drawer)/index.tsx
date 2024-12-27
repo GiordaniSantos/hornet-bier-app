@@ -97,15 +97,17 @@ export default function Home() {
             </View>
           </View>
         </View>
-        <Modal isVisible={isModalVisible} hideModalContentWhileAnimating={true} animationIn={'fadeIn'} animationOut={'fadeOut'} swipeDirection={'down'} scrollHorizontal={true} onBackdropPress = {()  => setModalVisible(false)} >
+        <Modal isVisible={isModalVisible} avoidKeyboard useNativeDriver={true} useNativeDriverForBackdrop={true} propagateSwipe hideModalContentWhileAnimating animationIn={'fadeIn'} animationOut={'fadeOut'} scrollHorizontal={true} onBackdropPress = {()  => setModalVisible(false)} >
           <View>
             <View style={styles.containerTable}>
+            <ScrollView>
               {dados.map((item, index) => (
                 <View key={index} style={styles.row}>
                   <Text style={styles.label}>{item.label}</Text>
                   <Text style={styles.value}>{item.value}</Text>
                 </View>
               ))}
+            </ScrollView>
             </View>
           </View>
         </Modal>
