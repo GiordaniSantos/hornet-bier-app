@@ -21,9 +21,9 @@ export default function Clientes() {
               <Text style={styles.author}>Contato: Mônica</Text>
               <Text style={styles.author}>CNPJ: 07.874.061/0001-27</Text>
               <View style={styles.containerButtons}>
-                <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to project */}}>
+                <Link href="/clientes/edit/1234" style={styles.button} asChild>
                   <FontAwesome5 name="edit" size={14} color={'#000'} />
-                </TouchableOpacity>
+                </Link>
                 <Link href="/clientes/view/1234" style={styles.button} asChild>
                   <FontAwesome5 name="eye" size={14} color={'#000'} />
                 </Link>
