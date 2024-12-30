@@ -79,6 +79,15 @@ const DrawerLayout = () => (
         drawerIcon: ({ size, color }) => <FontAwesome5 name="exclamation-circle" size={size} color={color} />,
       }}
     />
+    <Drawer.Screen
+      name="servicos"
+      options={{
+        headerTitle: 'Serviços',
+        drawerLabel: 'Serviços',
+        drawerItemStyle: styles.drawerItemStyle,
+        drawerIcon: ({ size, color }) => <FontAwesome5 name="briefcase" size={size} color={color} />,
+      }}
+    />
   </Drawer>
 );
 
