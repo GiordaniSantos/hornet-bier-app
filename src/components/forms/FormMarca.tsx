@@ -5,19 +5,19 @@ type formData = {
   nome: string;
 }
 
-interface Servico {
+interface Marca {
     nome: string;
   }
   
-interface FormServicoProps {
-    servico?: Servico;
+interface FormMarcaProps {
+    marca?: Marca;
 }
 
-export default function FormServico({servico}: FormServicoProps) {
+export default function FormMarca({marca}: FormMarcaProps) {
 
     const { control, handleSubmit, formState: { errors } } = useForm<formData>({
         defaultValues: {
-            nome: servico?.nome || ""
+            nome: marca?.nome || ""
         },
     })
 
@@ -49,7 +49,7 @@ export default function FormServico({servico}: FormServicoProps) {
                 name="nome"
             />
             <View style={styles.buttonSave}>
-                <Button title={servico ? "Atualizar" : "Cadastrar"} color={'#1cc88a'} onPress={handleSubmit(onSubmit)} />
+                <Button title={marca ? "Atualizar" : "Cadastrar"} color={'#1cc88a'} onPress={handleSubmit(onSubmit)} />
             </View>
         </>
     );
