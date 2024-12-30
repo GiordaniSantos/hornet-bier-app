@@ -58,7 +58,7 @@ const DrawerLayout = () => (
         headerTitle: 'Ordens de Serviço',
         drawerLabel: 'Ordens de Serviço',
         drawerItemStyle: styles.drawerItemStyle,
-        drawerIcon: ({ size, color }) => <FontAwesome5 name="home" size={size} color={color} />,
+        drawerIcon: ({ size, color }) => <FontAwesome6 name="gear" size={size} color={color} />,
       }}
     />
     <Drawer.Screen
@@ -68,6 +68,15 @@ const DrawerLayout = () => (
         drawerLabel: 'Clientes',
         drawerItemStyle: styles.drawerItemStyle,
         drawerIcon: ({ size, color }) => <FontAwesome6 name="user-group" size={size} color={color} />,
+      }}
+    />
+    <Drawer.Screen
+      name="problemas"
+      options={{
+        headerTitle: 'Problemas',
+        drawerLabel: 'Problemas',
+        drawerItemStyle: styles.drawerItemStyle,
+        drawerIcon: ({ size, color }) => <FontAwesome5 name="exclamation-circle" size={size} color={color} />,
       }}
     />
   </Drawer>
