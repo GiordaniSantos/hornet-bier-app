@@ -1,9 +1,10 @@
 import { StyleSheet, View, Text, TextInput, Button, ScrollView, Picker } from 'react-native';
 import { useForm, Controller } from "react-hook-form";
 import { useState } from 'react';
-import { Dropdown } from 'react-native-element-dropdown';
+import { Dropdown, MultiSelect } from 'react-native-element-dropdown';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 type formData = {
     cliente: string;
@@ -38,8 +39,11 @@ interface FormOrdemServicoProps {
 }
 
 export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) {
+    const [selectedProblema, setSelectedProblema] = useState([]);
+    const [selectedServico, setSelectedServico] = useState([]);
 
     const [items, setItems] = useState([{ id: 0, piece: '', quantity: '' }]);
+
     const pieces = [
         { value: '2', label: 'Compressor 1/4 - R$550,00' },
         { value: '3', label: 'Compressor 1/3 - R$750,00' },
@@ -62,6 +66,17 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
         { value: '5', label: 'TSI' },
         { value: '6', label: 'Elts' },
     ]
+
+    const data = [
+        { label: 'Compressor', value: '1' },
+        { label: 'Bobina Solenoide', value: '2' },
+        { label: 'Protetor Térmico', value: '3' },
+        { label: 'Relé', value: '4' },
+        { label: 'Capacitador de Partida', value: '5' },
+        { label: 'Capacitor Permanente', value: '6' },
+        { label: 'Ventilador', value: '7' },
+        { label: 'Boiler', value: '8' },
+    ];
 
     const addItem = () => {
         setItems([...items, { id: items.length, piece: '', quantity: '' }]);
@@ -186,30 +201,60 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
             <Controller
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => (
-                    <>
-                        <Text style={[styles.label, {width: 220}]}>Problemas(s) Apresentado(s)</Text>
-                        <TextInput
-                            style={styles.input}
-                            onBlur={onBlur}
-                            onChangeText={onChange}
-                            value={value}
+                    <View style={styles.container}>
+                        <MultiSelect
+                            style={styles.dropdown}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            inputSearchStyle={styles.inputSearchStyle}
+                            iconStyle={styles.iconStyle}
+                            search
+                            data={data}
+                            labelField="label"
+                            valueField="value"
+                            placeholder="Problemas(s) Apresentado(s)"
+                            searchPlaceholder="Pesquise..."
+                            value={selectedProblema}
+                            onChange={item => {
+                                setSelectedProblema(item);
+                                onChange(item);
+                            }}
+                            renderLeftIcon={() => (
+                                <MaterialCommunityIcons style={styles.icon} name="exclamation-thick" size={20} color="black" />
+                            )}
+                            selectedStyle={styles.selectedStyle}
                         />
-                    </>
+                    </View>
                 )}
                 name="problemas"
             />
-            <Controller
+             <Controller
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => (
-                    <>
-                        <Text style={[styles.label, {width: 160}]}>Serviço(s) Prestado(s)</Text>
-                        <TextInput
-                            style={styles.input}
-                            onBlur={onBlur}
-                            onChangeText={onChange}
-                            value={value}
+                    <View style={styles.container}>
+                        <MultiSelect
+                            style={styles.dropdown}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            inputSearchStyle={styles.inputSearchStyle}
+                            iconStyle={styles.iconStyle}
+                            search
+                            data={data}
+                            labelField="label"
+                            valueField="value"
+                            placeholder="Serviço(s) Prestado(s)"
+                            searchPlaceholder="Pesquise..."
+                            value={selectedServico}
+                            onChange={item => {
+                                setSelectedServico(item);
+                                onChange(item);
+                            }}
+                            renderLeftIcon={() => (
+                                <MaterialCommunityIcons style={styles.icon} name="briefcase-variant" size={20} color="black" />
+                            )}
+                            selectedStyle={styles.selectedStyle}
                         />
-                    </>
+                    </View>
                 )}
                 name="servicos"
             />
@@ -435,5 +480,8 @@ const styles = StyleSheet.create({
     inputSearchStyle: {
         height: 40,
         fontSize: 16,
+    },
+    selectedStyle: {
+        borderRadius: 12,
     },
 });
