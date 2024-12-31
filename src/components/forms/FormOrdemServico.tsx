@@ -3,6 +3,7 @@ import { useForm, Controller } from "react-hook-form";
 import { useState } from 'react';
 import { Dropdown } from 'react-native-element-dropdown';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 type formData = {
     cliente: string;
@@ -46,6 +47,22 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
         // Adicione mais opções conforme necessário
     ];
 
+    const clientes = [
+        { value: '2', label: 'Maniba Cervejaria' },
+        { value: '3', label: 'Dirlei ( Particular )' },
+        { value: '4', label: 'Rodrigo ( Particular )' },
+        { value: '5', label: 'Dr Chopp' },
+        { value: '6', label: 'Rothenburg Industria e Comercio de Cervejas Especiais LTDA' },
+    ]
+
+    const marcas = [
+        { value: '2', label: 'Memo' },
+        { value: '3', label: 'Gell Chopp' },
+        { value: '4', label: 'Bauer' },
+        { value: '5', label: 'TSI' },
+        { value: '6', label: 'Elts' },
+    ]
+
     const addItem = () => {
         setItems([...items, { id: items.length, piece: '', quantity: '' }]);
     };
@@ -69,37 +86,55 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
         <>
             <Controller
                 control={control}
-                rules={{
-                    required: true,
-                    maxLength: 250
-                }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                    <>
-                        <Text style={[styles.label, {width: 58}]}>Cliente</Text>
-                        <TextInput
-                            style={styles.input}
-                            onBlur={onBlur}
-                            onChangeText={onChange}
-                            value={value}
-                        />
-                        {errors.cliente && errors.cliente.type == "required" && <Text style={styles.textError}>Preencha este campo!</Text>}
-                        {errors.cliente && errors.cliente.type == "maxLength" && <Text style={styles.textError}>No máximo 250 caracteres!</Text>}
-                    </>
+                    <Dropdown
+                        style={[styles.picker, styles.dropdown, {marginBottom: 20}]}
+                        placeholderStyle={styles.placeholderStyle}
+                        selectedTextStyle={styles.selectedTextStyle}
+                        inputSearchStyle={styles.inputSearchStyle}
+                        iconStyle={styles.iconStyle}
+                        data={clientes}
+                        search
+                        maxHeight={300}
+                        labelField="label"
+                        valueField="value"
+                        placeholder={'Selecione o cliente'}
+                        searchPlaceholder="Pesquise..."
+                        value={value}
+                        onChange={item => {
+                            onChange(item.value);
+                        }}
+                        renderLeftIcon={() => (
+                            <FontAwesome name="user" style={styles.icon} size={20} color="black" />
+                        )}
+                    />
                 )}
                 name="cliente"
             />
             <Controller
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => (
-                    <>
-                        <Text style={[styles.label, {width: 55}]}>Marca</Text>
-                        <TextInput
-                            style={styles.input}
-                            onBlur={onBlur}
-                            onChangeText={onChange}
-                            value={value}
-                        />
-                    </>
+                    <Dropdown
+                        style={[styles.picker, styles.dropdown, {marginBottom: 20}]}
+                        placeholderStyle={styles.placeholderStyle}
+                        selectedTextStyle={styles.selectedTextStyle}
+                        inputSearchStyle={styles.inputSearchStyle}
+                        iconStyle={styles.iconStyle}
+                        data={marcas}
+                        search
+                        maxHeight={300}
+                        labelField="label"
+                        valueField="value"
+                        placeholder={'Selecione a marca'}
+                        searchPlaceholder="Pesquise..."
+                        value={value}
+                        onChange={item => {
+                            onChange(item.value);
+                        }}
+                        renderLeftIcon={() => (
+                            <MaterialCommunityIcons style={styles.icon} name="office-building" size={20} color="black" />
+                        )}
+                    />
                 )}
                 name="marca"
             />
@@ -385,7 +420,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
     },
     icon: {
-        marginRight: 5,
+        marginRight: 10,
     },
     placeholderStyle: {
         fontSize: 16,
