@@ -62,6 +62,15 @@ const DrawerLayout = () => (
       }}
     />
     <Drawer.Screen
+      name="pecas"
+      options={{
+        headerTitle: 'Peças',
+        drawerLabel: 'Peças',
+        drawerItemStyle: styles.drawerItemStyle,
+        drawerIcon: ({ size, color }) => <FontAwesome6 name="screwdriver-wrench" size={size} color={color}  />,
+      }}
+    />
+    <Drawer.Screen
       name="clientes"
       options={{
         headerTitle: 'Clientes',
@@ -88,7 +97,7 @@ const DrawerLayout = () => (
         drawerIcon: ({ size, color }) => <FontAwesome5 name="briefcase" size={size} color={color} />,
       }}
     />
-     <Drawer.Screen
+    <Drawer.Screen
       name="marcas"
       options={{
         headerTitle: 'Marcas',

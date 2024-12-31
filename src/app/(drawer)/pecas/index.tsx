@@ -4,73 +4,53 @@ import { Container } from '@/src/components/Container';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 
-export default function Home() {
+export default function Pecas() {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Home' }} />
+      <Stack.Screen options={{ title: 'Pecas' }} />
       <Container>
         <View style={styles.container}>
           <View style={styles.card}>
-            <Text style={[styles.btnStatus, styles.colorApproved]}>ABERTO</Text>
             <View style={{padding:16}}>
               <View style={styles.header}>
                 <View>
-                  <Text style={styles.title}>131.26.2024</Text>
-                  <Text style={styles.badgeOpen}>DublinBier</Text>
+                  <Text style={styles.title}>Porca Sextavada M6</Text>
                 </View>
               </View>
-              <Text style={styles.author}>Valor total: R$280,00</Text>
-              <Text style={styles.date}>
-                Entrada em: 23/12/2024 | Saída: 24/12/2024
-              </Text>
+              <Text style={styles.author}>Valor Unitário: R$0,50</Text>
+              <Text style={styles.author}>Data de Criação: 18/12/2024</Text>
               <View style={styles.containerButtons}>
-                <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to project */}}>
+                <Link href="/pecas/edit/1234" style={styles.button} asChild>
                   <FontAwesome5 name="edit" size={14} color={'#000'} />
-                </TouchableOpacity>
-                <Link href="/ordem-servico/view/1234" style={styles.button} asChild>
-                  <FontAwesome5 name="eye" size={14} color={'#000'} />
                 </Link>
                 <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to project */}}>
                   <FontAwesome5 name="trash" size={14} color={'#000'} />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to project */}}>
-                  <FontAwesome5 name="whatsapp" size={14} color={'#000'} />
                 </TouchableOpacity>
               </View>
             </View>
           </View>
           <View style={styles.card}>
-            <Text style={[styles.btnStatus, styles.colorClosed]}>FECHADO</Text>
             <View style={{padding:16}}>
               <View style={styles.header}>
                 <View>
-                  <Text style={styles.title}>129.35.2024</Text>
-                  <Text style={styles.badgeOpen}>Indústria e Comércio de Chopeiras Ribeirão Preto ( MEMO )</Text>
+                  <Text style={styles.title}>Parafuso Sextavado M6</Text>
                 </View>
               </View>
-              <Text style={styles.author}>Valor total: R$280,00</Text>
-              <Text style={styles.date}>
-                Entrada em: 23/12/2024 | Saída: 24/12/2024
-              </Text>
+              <Text style={styles.author}>Valor Unitário: R$0,50</Text>
+              <Text style={styles.author}>Data de Criação: 10/12/2024</Text>
               <View style={styles.containerButtons}>
                 <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to project */}}>
                   <FontAwesome5 name="edit" size={14} color={'#000'} />
                 </TouchableOpacity>
-                <Link href="/ordem-servico/view/123354" style={styles.button} asChild>
-                  <FontAwesome5 name="eye" size={14} color={'#000'} />
-                </Link>
                 <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to project */}}>
                   <FontAwesome5 name="trash" size={14} color={'#000'} />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to project */}}>
-                  <FontAwesome5 name="whatsapp" size={14} color={'#000'} />
                 </TouchableOpacity>
               </View>
             </View>
           </View>
         </View>
-        <TouchableOpacity style={styles.addButton} onPress={() => {router.push("/ordem-servico/create")}} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.addButton} onPress={() => {router.push("/pecas/create")}} activeOpacity={0.7}>
           <FontAwesome5 name="plus" size={20} color={'#FFF'} />
         </TouchableOpacity>
       </Container>
@@ -99,7 +79,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   badgeContainer: {
     marginBottom: 12,
@@ -143,8 +123,7 @@ const styles = StyleSheet.create({
     top: 0,
   },
   author: {
-    marginTop: 12,
-    marginBottom: 4,
+    marginTop: 4,
     color: '#6c757d',
     fontSize: 14,
   },
