@@ -1,6 +1,8 @@
 import { StyleSheet, View, Text, TextInput, Button, ScrollView, Picker } from 'react-native';
 import { useForm, Controller } from "react-hook-form";
 import { useState } from 'react';
+import { Dropdown } from 'react-native-element-dropdown';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 type formData = {
     cliente: string;
@@ -181,59 +183,69 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
                     <View style={styles.row}>
                         <Text style={[styles.header, styles.cell]}>Peça</Text>
                         <Text style={[styles.header, styles.cell]}>Quantidade</Text>
-                        <Text style={[styles.header, {flex: 1}]}>Ação</Text>
                     </View>
                     {items.map((item, index) => (
-                    <View key={item.id} style={styles.row}>
-                        <Controller
-                            control={control}
-                            render={({ field: { onChange, onBlur, value } }) => (
-                                <Picker
-                                selectedValue={value}
-                                style={[styles.picker, styles.cell]}
-                                onValueChange={(value) => {
-                                    onChange(value);
-                                    item.piece = value; // Atualiza o estado local
-                                }}
-                                >
-                                <Picker.Item label="Selecione a peça" value="" />
-                                {pieces.map(piece => (
-                                    <Picker.Item key={piece.value} label={piece.label} value={piece.value} />
-                                ))}
-                                </Picker>
-                            )}
-                            name={`items[${index}].piece`}
-                            defaultValue={item.piece}
-                        />
-                        <Controller
-                            control={control}
-                            render={({ field: { onChange, onBlur, value } }) => (
-                                <TextInput
-                                style={[styles.input, styles.cell]}
-                                placeholder="Digite a quantidade"
-                                keyboardType="numeric"
-                                onBlur={onBlur}
-                                onChangeText={onChange}
-                                value={value}
+                        <View key={item.id}>
+                            <View style={styles.row}>
+                                <Controller
+                                    control={control}
+                                    render={({ field: { onChange, onBlur, value } }) => (
+                                        <Dropdown
+                                            style={[styles.picker, styles.cell, styles.dropdown]}
+                                            placeholderStyle={styles.placeholderStyle}
+                                            selectedTextStyle={styles.selectedTextStyle}
+                                            inputSearchStyle={styles.inputSearchStyle}
+                                            iconStyle={styles.iconStyle}
+                                            data={pieces}
+                                            search
+                                            maxHeight={300}
+                                            labelField="label"
+                                            valueField="value"
+                                            placeholder={'Selecione'}
+                                            searchPlaceholder="Pesquise..."
+                                            value={value}
+                                            onChange={item => {
+                                                onChange(item.value);
+                                                item.piece = item.value;
+                                            }}
+                                            renderLeftIcon={() => (
+                                                <MaterialCommunityIcons style={styles.icon} name="screw-flat-top" size={20} color={'black'} />
+                                            )}
+                                        />
+                                    )}
+                                    name={`items[${index}].piece`}
+                                    defaultValue={item.piece}
                                 />
+                                <Controller
+                                    control={control}
+                                    render={({ field: { onChange, onBlur, value } }) => (
+                                        <TextInput
+                                        style={[styles.input, styles.cell, {marginBottom: 0}]}
+                                        placeholder="Digite a quantidade"
+                                        keyboardType="numeric"
+                                        onBlur={onBlur}
+                                        onChangeText={onChange}
+                                        value={value}
+                                        />
+                                    )}
+                                    name={`items[${index}].quantity`}
+                                    defaultValue={item.quantity}
+                                />
+                            </View>
+                            {index === 0 ? (
+                                ( 
+                                    <View style={{flex: 1, marginBottom: 20}}>
+                                        <Button title="Adicionar" color="#1cc88a" onPress={addItem} />
+                                    </View>
+                                )
+                            ) : (
+                                ( 
+                                    <View style={{flex: 1, marginBottom: 20}}>
+                                        <Button title="Remover" color="#e74a3b" onPress={() => removeItem(item.id)} />
+                                    </View>
+                                )
                             )}
-                            name={`items[${index}].quantity`}
-                            defaultValue={item.quantity}
-                        />
-                        {index === 0 ? (
-                           ( 
-                            <View style={{flex: 1, padding: 10}}>
-                               <Button title="Adicionar" color="#1cc88a" onPress={addItem} />
-                            </View>
-                            )
-                        ) : (
-                            ( 
-                            <View style={{flex: 1, padding: 10}}>
-                                <Button title="Remover" color="#e74a3b" onPress={() => removeItem(item.id)} />
-                            </View>
-                            )
-                        )}
-                    </View>
+                        </View>
                     ))}
                 </View>
             </ScrollView>
@@ -307,12 +319,15 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
+        marginBottom: 25
     },
     table: {
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 5,
+        paddingTop: 20,
+        paddingBottom: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+        borderTopWidth: 1,
+        borderTopColor: '#ccc'
     },
     row: {
         flexDirection: 'row',
@@ -361,5 +376,29 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 10,
         marginBottom: 20,
+    },
+    dropdown: {
+        height: 50,
+        borderColor: 'gray',
+        borderWidth: 0.5,
+        borderRadius: 8,
+        paddingHorizontal: 8,
+    },
+    icon: {
+        marginRight: 5,
+    },
+    placeholderStyle: {
+        fontSize: 16,
+    },
+    selectedTextStyle: {
+        fontSize: 16,
+    },
+    iconStyle: {
+        width: 20,
+        height: 20,
+    },
+    inputSearchStyle: {
+        height: 40,
+        fontSize: 16,
     },
 });
