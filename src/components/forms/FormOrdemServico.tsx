@@ -1,5 +1,6 @@
-import { StyleSheet, View, Text, TextInput, Button } from 'react-native';
+import { StyleSheet, View, Text, TextInput, Button, ScrollView, Picker } from 'react-native';
 import { useForm, Controller } from "react-hook-form";
+import { useState } from 'react';
 
 type formData = {
     cliente: string;
@@ -34,6 +35,23 @@ interface FormOrdemServicoProps {
 }
 
 export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) {
+
+    const [items, setItems] = useState([{ id: 0, piece: '', quantity: '' }]);
+    const pieces = [
+        { value: '2', label: 'Compressor 1/4 - R$550,00' },
+        { value: '3', label: 'Compressor 1/3 - R$750,00' },
+        { value: '4', label: 'Compressor 1/2 - R$750,00' },
+        // Adicione mais opções conforme necessário
+    ];
+
+    const addItem = () => {
+        setItems([...items, { id: items.length, piece: '', quantity: '' }]);
+    };
+
+    const removeItem = (id) => {
+        const newItems = items.filter(item => item.id !== id);
+        setItems(newItems);
+    };
 
     const { control, handleSubmit, formState: { errors } } = useForm<formData>({
         defaultValues: {
@@ -158,6 +176,67 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
                 )}
                 name="servicos"
             />
+            <ScrollView style={styles.container}>
+                <View style={styles.table}>
+                    <View style={styles.row}>
+                        <Text style={[styles.header, styles.cell]}>Peça</Text>
+                        <Text style={[styles.header, styles.cell]}>Quantidade</Text>
+                        <Text style={[styles.header, {flex: 1}]}>Ação</Text>
+                    </View>
+                    {items.map((item, index) => (
+                    <View key={item.id} style={styles.row}>
+                        <Controller
+                            control={control}
+                            render={({ field: { onChange, onBlur, value } }) => (
+                                <Picker
+                                selectedValue={value}
+                                style={[styles.picker, styles.cell]}
+                                onValueChange={(value) => {
+                                    onChange(value);
+                                    item.piece = value; // Atualiza o estado local
+                                }}
+                                >
+                                <Picker.Item label="Selecione a peça" value="" />
+                                {pieces.map(piece => (
+                                    <Picker.Item key={piece.value} label={piece.label} value={piece.value} />
+                                ))}
+                                </Picker>
+                            )}
+                            name={`items[${index}].piece`}
+                            defaultValue={item.piece}
+                        />
+                        <Controller
+                            control={control}
+                            render={({ field: { onChange, onBlur, value } }) => (
+                                <TextInput
+                                style={[styles.input, styles.cell]}
+                                placeholder="Digite a quantidade"
+                                keyboardType="numeric"
+                                onBlur={onBlur}
+                                onChangeText={onChange}
+                                value={value}
+                                />
+                            )}
+                            name={`items[${index}].quantity`}
+                            defaultValue={item.quantity}
+                        />
+                        {index === 0 ? (
+                           ( 
+                            <View style={{flex: 1, padding: 10}}>
+                               <Button title="Adicionar" color="#1cc88a" onPress={addItem} />
+                            </View>
+                            )
+                        ) : (
+                            ( 
+                            <View style={{flex: 1, padding: 10}}>
+                                <Button title="Remover" color="#e74a3b" onPress={() => removeItem(item.id)} />
+                            </View>
+                            )
+                        )}
+                    </View>
+                    ))}
+                </View>
+            </ScrollView>
             <Controller
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => (
@@ -226,30 +305,61 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
 }
 
 const styles = StyleSheet.create({
-  buttonSave: {
-    marginTop: 5,
-  },
-  textError: {
-    marginTop: -15,
-    marginBottom: 8,
-    color: '#fc0303'
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: -10,
-    marginLeft: 10,
-    backgroundColor: '#FFF',
-    width: 50,
-    textAlign: 'center',
-    zIndex: 1
-  },
-  input: {
-    height: 50,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    marginBottom: 20,
-  },
+    container: {
+        flex: 1,
+        padding: 20,
+    },
+    table: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+    },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    header: {
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    cell: {
+        flex: 2,
+        padding: 5,
+    },
+    picker: {
+        height: 50,
+    },
+    inputQuantidade: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        padding: 5,
+    },
+    buttonSave: {
+        marginTop: 5,
+    },
+    textError: {
+        marginTop: -15,
+        marginBottom: 8,
+        color: '#fc0303'
+    },
+    label: {
+        fontSize: 16,
+        marginBottom: -10,
+        marginLeft: 10,
+        backgroundColor: '#FFF',
+        width: 50,
+        textAlign: 'center',
+        zIndex: 1
+    },
+    input: {
+        height: 50,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        borderWidth: 1,
+        paddingHorizontal: 10,
+        paddingVertical: 10,
+        marginBottom: 20,
+    },
 });
