@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
   containerForm: {
     padding: 10,
     borderWidth: 1,
+    margin: 10,
     borderColor: '#ccc',
     borderRadius: 10,
     backgroundColor: '#fff',

@@ -1,54 +1,35 @@
 import { router, Stack } from 'expo-router';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, FlatList } from 'react-native';
 import { Container } from '@/src/components/Container';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import ListPeca from '@/src/components/lists/ListPeca';
 
 export default function Pecas() {
+  const pecas = [
+    {
+      id: 1,
+      nome: 'Porca Sextavada M6',
+      valorUnitario: 0.50,
+      dataCriacao: '24/12/2024',
+    },   
+    {
+      id: 2,
+      nome: 'Porca Sextavada M6',
+      valorUnitario: 0.50,
+      dataCriacao: '24/12/2024',
+    },
+  ];
 
   return (
     <>
       <Stack.Screen options={{ title: 'Pecas' }} />
       <Container>
         <View style={styles.container}>
-          <View style={styles.card}>
-            <View style={{padding:16}}>
-              <View style={styles.header}>
-                <View>
-                  <Text style={styles.title}>Porca Sextavada M6</Text>
-                </View>
-              </View>
-              <Text style={styles.author}>Valor Unitário: R$0,50</Text>
-              <Text style={styles.author}>Data de Criação: 18/12/2024</Text>
-              <View style={styles.containerButtons}>
-                <Link href="/pecas/edit/1234" style={styles.button} asChild>
-                  <FontAwesome5 name="edit" size={14} color={'#000'} />
-                </Link>
-                <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to project */}}>
-                  <FontAwesome5 name="trash" size={14} color={'#000'} />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-          <View style={styles.card}>
-            <View style={{padding:16}}>
-              <View style={styles.header}>
-                <View>
-                  <Text style={styles.title}>Parafuso Sextavado M6</Text>
-                </View>
-              </View>
-              <Text style={styles.author}>Valor Unitário: R$0,50</Text>
-              <Text style={styles.author}>Data de Criação: 10/12/2024</Text>
-              <View style={styles.containerButtons}>
-                <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to project */}}>
-                  <FontAwesome5 name="edit" size={14} color={'#000'} />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to project */}}>
-                  <FontAwesome5 name="trash" size={14} color={'#000'} />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
+           <FlatList
+              data={pecas}
+              renderItem={({ item }) => <ListPeca peca={item} />}
+              keyExtractor={item => item.id}
+            />
         </View>
         <TouchableOpacity style={styles.addButton} onPress={() => {router.push("/pecas/create")}} activeOpacity={0.7}>
           <FontAwesome5 name="plus" size={20} color={'#FFF'} />
@@ -61,91 +42,6 @@ export default function Pecas() {
 const styles = StyleSheet.create({
   container: {
     flex: 1
-  },
-  card: {
-    borderRadius: 15,
-    height: 'auto',
-    overflow: 'hidden',
-    backgroundColor: '#fff',
-    marginBottom: 15,
-    position: 'relative',
-    elevation: 2,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 12,
-  },
-  badgeContainer: {
-    marginBottom: 12,
-  },
-  badgeSecondary: {
-    backgroundColor: '#6c757d',
-    color: '#fff',
-    fontSize: 14,
-    padding: 4,
-    borderRadius: 8,
-    marginRight: 8,
-  },
-  badgeOpen: {
-    backgroundColor: '#f8f9fa',
-    color: '#343a40',
-    fontWeight: '700',
-    fontSize: 14,
-    padding: 4,
-    borderRadius: 8,
-  },
-  colorApproved: {
-    backgroundColor: '#28a745'
-  },
-  colorClosed: {
-    backgroundColor: '#ad3a13'
-  },
-  btnStatus: {
-    color: '#fff',
-    fontSize: 14,
-    paddingTop: 8,
-    paddingRight: 20,
-    paddingBottom: 8,
-    paddingLeft: 20,
-    borderRadius: 8,
-    borderTopRightRadius: 15,
-    borderTopLeftRadius: 0,
-    borderBottomLeftRadius: 18,
-    borderBottomRightRadius: 0,
-    position: 'absolute',
-    right: 0,
-    top: 0,
-  },
-  author: {
-    marginTop: 4,
-    color: '#6c757d',
-    fontSize: 14,
-  },
-  date: {
-    color: '#6c757d',
-    fontSize: 14,
-  },
-  containerButtons: {
-    display: 'flex', 
-    flexDirection: 'row',
-    marginBottom: 5
-  },
-  button: {
-    marginTop: 20,
-    marginRight: 10,
-    backgroundColor: 'transparent',
-    borderColor: '#ff3a00',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    alignItems: 'center',
   },
   addButton: {
     position: 'absolute',
