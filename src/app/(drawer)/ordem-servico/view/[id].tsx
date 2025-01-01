@@ -32,9 +32,9 @@ export default function ViewOS() {
         <>
             <Stack.Screen options={{ title: 'Detalhe da OS' }} />
             <Container>
-                <View style={styles.container}>
-                  <Detail dados={dados} />  
-                </View>
+              <View style={styles.container}>
+                <Detail dados={dados} />  
+              </View>
             </Container>
         </>
     );

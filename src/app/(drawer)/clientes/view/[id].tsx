@@ -1,7 +1,8 @@
 import { Stack } from 'expo-router';
-import { StyleSheet, View, Text, TouchableOpacity, Button, ScrollView } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Container } from '@/src/components/Container';
 import { useLocalSearchParams } from 'expo-router';
+import Detail from '@/src/components/details/Detail';
 
 export default function ViewOS() {
     const { id } = useLocalSearchParams();
@@ -25,18 +26,9 @@ export default function ViewOS() {
         <>
             <Stack.Screen options={{ title: 'Detalhes do Cliente' }} />
             <Container>
-                <View style={styles.container}>
-                    <View style={styles.containerTable}>
-                        <ScrollView>
-                            {dados.map((item, index) => (
-                                <View key={index} style={styles.row}>
-                                    <Text style={styles.label}>{item.label}</Text>
-                                    <Text style={styles.value}>{item.value}</Text>
-                                </View>
-                            ))}
-                        </ScrollView>
-                    </View>
-                </View>
+              <View style={styles.container}>
+                <Detail dados={dados} />  
+              </View>
             </Container>
         </>
     );
@@ -45,28 +37,5 @@ export default function ViewOS() {
 const styles = StyleSheet.create({
   container: {
     flex: 1
-  },
-  containerTable: {
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
-    backgroundColor: '#fff',
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  label: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    flex: 1,
-  },
-  value: {
-    fontSize: 16,
-    flex: 2,
   },
 });

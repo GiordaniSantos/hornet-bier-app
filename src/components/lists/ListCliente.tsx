@@ -2,32 +2,35 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 
-interface Peca {
+interface Cliente {
     id: number;
     nome: string;
-    valorUnitario: number;
-    dataCriacao: string;
+    nomeContato: string;
+    cpfCnpj: string;
 }
 
-interface ListPecaProps {
-    peca: Peca;
+interface ListClienteProps {
+    cliente: Cliente;
 }
 
-export default function ListPeca({peca}: ListPecaProps) {
+export default function ListCliente({cliente}: ListClienteProps) {
 
     return (
         <View style={styles.card}>
             <View style={{padding:16}}>
                 <View style={styles.header}>
                     <View>
-                        <Text style={styles.title}>{peca.nome}</Text>
+                        <Text style={styles.title}>{cliente.nome}</Text>
                     </View>
                 </View>
-                <Text style={styles.item}>Valor Unitário: R${peca.valorUnitario.toFixed(2)}</Text>
-                <Text style={[styles.item, {marginTop: 3, marginBottom: 0}]}>Data de Criação: {peca.dataCriacao}</Text>
+                <Text style={styles.item}>Contato: {cliente.nomeContato}</Text>
+                <Text style={[styles.item, {marginTop: 3, marginBottom: 0}]}>CNPJ/CPF: {cliente.cpfCnpj}</Text>
                 <View style={styles.containerButtons}>
-                    <Link href={`/pecas/edit/${peca.id}`} style={styles.button} asChild>
+                    <Link href={`/clientes/edit/${cliente.id}`} style={styles.button} asChild>
                         <FontAwesome5 name="edit" size={14} color={'#000'} />
+                    </Link>
+                    <Link href={`/clientes/view/${cliente.id}`} style={styles.button} asChild>
+                        <FontAwesome5 name="eye" size={14} color={'#000'} />
                     </Link>
                     <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to project */}}>
                         <FontAwesome5 name="trash" size={14} color={'#000'} />
