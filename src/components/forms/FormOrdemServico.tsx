@@ -127,28 +127,34 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
         <>
             <Controller
                 control={control}
+                rules={{
+                    required: true
+                }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                    <Dropdown
-                        style={[styles.picker, styles.dropdown, {marginBottom: 20}]}
-                        placeholderStyle={styles.placeholderStyle}
-                        selectedTextStyle={styles.selectedTextStyle}
-                        inputSearchStyle={styles.inputSearchStyle}
-                        iconStyle={styles.iconStyle}
-                        data={clientes}
-                        search
-                        maxHeight={300}
-                        labelField="label"
-                        valueField="value"
-                        placeholder={'Selecione o cliente'}
-                        searchPlaceholder="Pesquise..."
-                        value={value}
-                        onChange={item => {
-                            onChange(item.value);
-                        }}
-                        renderLeftIcon={() => (
-                            <FontAwesome name="user" style={styles.icon} size={20} color="black" />
-                        )}
-                    />
+                    <>
+                        <Dropdown
+                            style={[styles.picker, styles.dropdown, {marginBottom: 20}]}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            inputSearchStyle={styles.inputSearchStyle}
+                            iconStyle={styles.iconStyle}
+                            data={clientes}
+                            search
+                            maxHeight={300}
+                            labelField="label"
+                            valueField="value"
+                            placeholder={'Selecione o cliente'}
+                            searchPlaceholder="Pesquise..."
+                            value={value}
+                            onChange={item => {
+                                onChange(item.value);
+                            }}
+                            renderLeftIcon={() => (
+                                <FontAwesome name="user" style={styles.icon} size={20} color="black" />
+                            )}
+                        />
+                        {errors.cliente && <Text style={styles.textError}>Preencha este campo!</Text>}
+                    </>
                 )}
                 name="cliente"
             />
@@ -181,6 +187,9 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
             />
             <Controller
                 control={control}
+                rules={{
+                    maxLength: 300
+                }}
                 render={({ field: { onChange, onBlur, value } }) => (
                     <>
                         <Text style={[styles.label, {width: 65}]}>Modelo</Text>
@@ -190,6 +199,7 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
                             onChangeText={onChange}
                             value={value}
                         />
+                         {errors.modelo && <Text style={styles.textError}>No máximo 300 caracteres!</Text>}
                     </>
                 )}
                 name="modelo"
@@ -211,6 +221,9 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
             />
             <Controller
                 control={control}
+                rules={{
+                    maxLength: 300
+                }}
                 render={({ field: { onChange, onBlur, value } }) => (
                     <>
                         <Text style={[styles.label, {width: 145}]}>Número do Motor</Text>
@@ -220,6 +233,7 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
                             onChangeText={onChange}
                             value={value}
                         />
+                        {errors.numeroMotor && <Text style={styles.textError}>No máximo 300 caracteres!</Text>}
                     </>
                 )}
                 name="numeroMotor"
@@ -436,6 +450,9 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
             />
             <Controller
                 control={control}
+                rules={{
+                    maxLength: 1000
+                }}
                 render={({ field: { onChange, onBlur, value } }) => (
                     <>
                         <Text style={[styles.label, {width: 105}]}>Observações</Text>
@@ -445,6 +462,7 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
                             onChangeText={onChange}
                             value={value}
                         />
+                        {errors.observacao && <Text style={styles.textError}>No máximo 1000 caracteres!</Text>}
                     </>
                 )}
                 name="observacao"
