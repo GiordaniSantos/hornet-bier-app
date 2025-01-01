@@ -25,11 +25,11 @@ export default function Pecas() {
       <Stack.Screen options={{ title: 'Pecas' }} />
       <Container>
         <View style={styles.container}>
-           <FlatList
-              data={pecas}
-              renderItem={({ item }) => <ListPeca peca={item} />}
-              keyExtractor={item => item.id}
-            />
+          <FlatList
+            data={pecas}
+            renderItem={({ item }) => <ListPeca peca={item} />}
+            keyExtractor={item => item.id}
+          />
         </View>
         <TouchableOpacity style={styles.addButton} onPress={() => {router.push("/pecas/create")}} activeOpacity={0.7}>
           <FontAwesome5 name="plus" size={20} color={'#FFF'} />
