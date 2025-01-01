@@ -1,20 +1,23 @@
 import { StyleSheet, View, Text, TextInput, Button, ScrollView, TouchableOpacity } from 'react-native';
 import { useForm, Controller } from "react-hook-form";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dropdown, MultiSelect } from 'react-native-element-dropdown';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { moedaApplyMask } from '@/src/utils/masks';
 
+type Item = { id: number; piece: string; quantity: number };
+
 type formData = {
-    cliente: string;
-    marca: string;
+    cliente: number | undefined;
+    marca: number | undefined;
     modelo: string;
     serie: string;
     numeroMotor: string;
-    problemas: string;
-    servicos: string;
+    problemas: undefined;
+    servicos: undefined;
+    items: Item[] | undefined;
     valorMaoDeObra: string;
     dataEntrada: string;
     dataSaida: string;
@@ -22,13 +25,14 @@ type formData = {
 }
 
 interface OrdemServico {
-    cliente: string;
-    marca: string;
+    cliente: number | undefined;
+    marca: number | undefined;
     modelo: string;
     serie: string;
     numeroMotor: string;
-    problemas: string;
-    servicos: string;
+    problemas: undefined;
+    servicos: undefined;
+    items: Item[] | undefined;
     valorMaoDeObra: string;
     dataEntrada: string;
     dataSaida: string;
@@ -40,64 +44,96 @@ interface FormOrdemServicoProps {
 }
 
 export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) {
-    const [selectedProblema, setSelectedProblema] = useState([]);
-    const [selectedServico, setSelectedServico] = useState([]);
-
-    const [items, setItems] = useState([{ id: 0, piece: '', quantity: '' }]);
-
-    const pieces = [
-        { value: '2', label: 'Compressor 1/4 - R$550,00' },
-        { value: '3', label: 'Compressor 1/3 - R$750,00' },
-        { value: '4', label: 'Compressor 1/2 - R$750,00' },
-        // Adicione mais opções conforme necessário
-    ];
-
-    const clientes = [
-        { value: '2', label: 'Maniba Cervejaria' },
-        { value: '3', label: 'Dirlei ( Particular )' },
-        { value: '4', label: 'Rodrigo ( Particular )' },
-        { value: '5', label: 'Dr Chopp' },
-        { value: '6', label: 'Rothenburg Industria e Comercio de Cervejas Especiais LTDA' },
-    ]
-
-    const marcas = [
-        { value: '2', label: 'Memo' },
-        { value: '3', label: 'Gell Chopp' },
-        { value: '4', label: 'Bauer' },
-        { value: '5', label: 'TSI' },
-        { value: '6', label: 'Elts' },
-    ]
-
-    const data = [
-        { label: 'Compressor', value: '1' },
-        { label: 'Bobina Solenoide', value: '2' },
-        { label: 'Protetor Térmico', value: '3' },
-        { label: 'Relé', value: '4' },
-        { label: 'Capacitador de Partida', value: '5' },
-        { label: 'Capacitor Permanente', value: '6' },
-        { label: 'Ventilador', value: '7' },
-        { label: 'Boiler', value: '8' },
-    ];
-
-    const addItem = () => {
-        setItems([...items, { id: items.length, piece: '', quantity: '' }]);
-    };
-
-    const removeItem = (id) => {
-        const newItems = items.filter(item => item.id !== id);
-        setItems(newItems);
-    };
-
-    const { control, handleSubmit, formState: { errors } } = useForm<formData>({
+    const { control, handleSubmit, setValue, formState: { errors } } = useForm<formData>({
         defaultValues: {
-            cliente: ordemServico?.cliente || ""
+            cliente: ordemServico?.cliente,
+            marca: ordemServico?.marca,
+            modelo: ordemServico?.modelo,
+            serie: ordemServico?.serie,
+            numeroMotor: ordemServico?.numeroMotor,
+            problemas: ordemServico?.problemas,
+            servicos: ordemServico?.servicos,
+            items: ordemServico?.items || [{ id: 0, piece: '', quantity: 0 }],
+            valorMaoDeObra: moedaApplyMask(ordemServico?.valorMaoDeObra),
+            dataEntrada: ordemServico?.dataEntrada,
+            dataSaida: ordemServico?.dataSaida,
+            observacao: ordemServico?.observacao
         },
     })
 
+    const [selectedProblema, setSelectedProblema] = useState([]);
+    const [selectedServico, setSelectedServico] = useState([]);
+
     const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(() => {
+        const today = new Date();
+        const futureDate = new Date(today);
+        futureDate.setDate(today.getDate() + 10);
+        return futureDate;
+    });
     const [showStart, setShowStart] = useState(false);
     const [showEnd, setShowEnd] = useState(false);
+
+    const [items, setItems] = useState([{ id: 0, piece: '', quantity: 0 }]);
+
+    const pieces = [
+        { value: 2, label: 'Compressor 1/4 - R$550,00' },
+        { value: 3, label: 'Compressor 1/3 - R$750,00' },
+        { value: 4, label: 'Compressor 1/2 - R$750,00' },
+        // Adicione mais opções conforme necessário
+    ];
+
+    useEffect(() => {
+        if (ordemServico?.items && ordemServico.items.length > 0) {
+            setItems(ordemServico.items);
+        }
+     
+        if (ordemServico?.dataEntrada) {
+            setStartDate(new Date(ordemServico.dataEntrada));
+        }
+        if (ordemServico?.dataSaida) {
+            setEndDate(new Date(ordemServico.dataSaida));
+        }
+        
+    }, [ordemServico?.items]);
+
+    const clientes = [
+        { value: 2, label: 'Maniba Cervejaria' },
+        { value: 3, label: 'Dirlei ( Particular )' },
+        { value: 4, label: 'Rodrigo ( Particular )' },
+        { value: 5, label: 'Dr Chopp' },
+        { value: 6, label: 'Rothenburg Industria e Comercio de Cervejas Especiais LTDA' },
+    ]
+
+    const marcas = [
+        { value: 2, label: 'Memo' },
+        { value: 3, label: 'Gell Chopp' },
+        { value: 4, label: 'Bauer' },
+        { value: 5, label: 'TSI' },
+        { value: 6, label: 'Elts' },
+    ]
+
+    const data = [
+        { label: 'Compressor', value: 1 },
+        { label: 'Bobina Solenoide', value: 2 },
+        { label: 'Protetor Térmico', value: 3 },
+        { label: 'Relé', value: 4 },
+        { label: 'Capacitador de Partida', value: 5 },
+        { label: 'Capacitor Permanente', value: 6 },
+        { label: 'Ventilador', value: 7 },
+        { label: 'Boiler', value: 8 },
+    ];
+
+    const addItem = () => {
+        setItems([...items, { id: items.length + 1, piece: '', quantity: 0 }]);
+        setValue('items', [...items, { id: items.length + 1, piece: '', quantity: 0 }]);
+    };
+
+    const removeItem = (id : number) => {
+        const newItems = items.filter(item => item.id !== id);
+        setItems(newItems);
+        setValue('items', newItems);
+    };
 
     const onChangeStart = (event, selectedDate) => {
         const currentDate = selectedDate || startDate;
@@ -254,7 +290,7 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
                             valueField="value"
                             placeholder="Problemas(s) Apresentado(s)"
                             searchPlaceholder="Pesquise..."
-                            value={selectedProblema}
+                            value={ordemServico?.problemas ? value : selectedProblema}
                             onChange={item => {
                                 setSelectedProblema(item);
                                 onChange(item);
@@ -284,7 +320,7 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
                             valueField="value"
                             placeholder="Serviço(s) Prestado(s)"
                             searchPlaceholder="Pesquise..."
-                            value={selectedServico}
+                            value={ordemServico?.servicos ? value : selectedServico}
                             onChange={item => {
                                 setSelectedServico(item);
                                 onChange(item);
@@ -340,12 +376,15 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
                                     control={control}
                                     render={({ field: { onChange, onBlur, value } }) => (
                                         <TextInput
-                                        style={[styles.input, styles.cell, {marginBottom: 0}]}
-                                        placeholder="Digite a quantidade"
-                                        keyboardType="numeric"
-                                        onBlur={onBlur}
-                                        onChangeText={onChange}
-                                        value={value}
+                                            style={[styles.input, styles.cell, {marginBottom: 0}]}
+                                            placeholder="Digite a quantidade"
+                                            keyboardType="numeric"
+                                            onBlur={onBlur}
+                                            onChangeText={(text) => {
+                                                const intValue = parseInt(text, 10);
+                                                onChange(isNaN(intValue) ? undefined : intValue);
+                                            }}
+                                            value={value ? String(value) : ''}
                                         />
                                     )}
                                     name={`items[${index}].quantity`}
