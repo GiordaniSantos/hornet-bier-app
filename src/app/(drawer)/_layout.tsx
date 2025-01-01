@@ -2,13 +2,17 @@ import React from 'react';
 import { View, Image, StyleSheet } from 'react-native';
 import { FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 import { Drawer } from 'expo-router/drawer';
-import { DrawerContentScrollView, DrawerItemList, DrawerContentComponentProps } from '@react-navigation/drawer';
+import { DrawerContentScrollView, DrawerItemList, DrawerContentComponentProps, DrawerItem } from '@react-navigation/drawer';
 import { Link } from 'expo-router';
 import { HeaderButton } from '../../components/HeaderButton';
 import Logo from '../../../assets/images/nova-logo.png';
 import { StatusBar } from 'expo-status-bar';
 
 const DrawerContent = (props: DrawerContentComponentProps) => {
+  const handleLogout = () => {
+    console.log("logout")
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -21,6 +25,13 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
       </View>
       <DrawerContentScrollView {...props}>
         <DrawerItemList {...props} />
+        <DrawerItem
+          label="Sair"
+          onPress={handleLogout}
+          icon={({ color, size }) => <FontAwesome5 name="sign-out-alt" size={size} color={'#FFF'} />}
+          style={styles.drawerItemStyle}
+          labelStyle={{color: '#FFF'}}
+        />
       </DrawerContentScrollView>
     </View>
   );
@@ -49,7 +60,10 @@ const DrawerLayout = () => (
     <Drawer.Screen
       name="index"
       options={{
-        drawerItemStyle: { height: 0 }
+        headerTitle: 'Início',
+        drawerLabel: 'Início',
+        drawerItemStyle: styles.drawerItemStyle,
+        drawerIcon: ({ size, color }) => <FontAwesome6 name="chart-area" size={size} color={color} />,
       }}
     />
     <Drawer.Screen
