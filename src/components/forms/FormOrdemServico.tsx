@@ -1,10 +1,11 @@
-import { StyleSheet, View, Text, TextInput, Button, ScrollView, Picker } from 'react-native';
+import { StyleSheet, View, Text, TextInput, Button, ScrollView, TouchableOpacity } from 'react-native';
 import { useForm, Controller } from "react-hook-form";
 import { useState } from 'react';
 import { Dropdown, MultiSelect } from 'react-native-element-dropdown';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import AntDesign from '@expo/vector-icons/AntDesign';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { moedaApplyMask } from '@/src/utils/masks';
 
 type formData = {
     cliente: string;
@@ -92,6 +93,31 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
             cliente: ordemServico?.cliente || ""
         },
     })
+
+    const [startDate, setStartDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(new Date());
+    const [showStart, setShowStart] = useState(false);
+    const [showEnd, setShowEnd] = useState(false);
+
+    const onChangeStart = (event, selectedDate) => {
+        const currentDate = selectedDate || startDate;
+        setShowStart(false);
+        setStartDate(currentDate);
+    };
+
+    const onChangeEnd = (event, selectedDate) => {
+        const currentDate = selectedDate || endDate;
+        setShowEnd(false);
+        setEndDate(currentDate);
+    };
+
+    const showStartDatepicker = () => {
+        setShowStart(true);
+    };
+
+    const showEndDatepicker = () => {
+        setShowEnd(true);
+    };
 
     const onSubmit = (data: formData) => {
         console.log(data)
@@ -329,7 +355,7 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
                     ))}
                 </View>
             </ScrollView>
-            <Controller
+             <Controller
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => (
                     <>
@@ -337,8 +363,16 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
                         <TextInput
                             style={styles.input}
                             onBlur={onBlur}
-                            onChangeText={onChange}
-                            value={value}
+                            keyboardType='numeric'
+                            onChangeText={text => {
+                                const apenasNumeros = text.replace(/\D/g, '');
+
+                                const valorEmReais = parseFloat(apenasNumeros) / 100;
+
+                                const valueMoeda = moedaApplyMask(valorEmReais);
+                                onChange(valueMoeda);
+                            }}
+                            value={value ? value.toString() : ''}
                         />
                     </>
                 )}
@@ -346,33 +380,59 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
             />
             <Controller
                 control={control}
-                render={({ field: { onChange, onBlur, value } }) => (
+                render={({ field: { onChange, value } }) => (
                     <>
                         <Text style={[styles.label, {width: 130}]}>Data de Entrada</Text>
-                        <TextInput
-                            style={styles.input}
-                            onBlur={onBlur}
-                            onChangeText={onChange}
-                            value={value}
-                        />
+                        <TouchableOpacity onPress={showStartDatepicker}>
+                            <TextInput
+                                style={styles.input}
+                                value={startDate.toLocaleDateString('pt-BR')}
+                                editable={false}
+                            />
+                        </TouchableOpacity>
+                        {showStart  && (
+                            <DateTimePicker
+                                value={startDate}
+                                mode="date"
+                                is24Hour={true}
+                                onChange={(event, selectedDate) => {
+                                    onChange(selectedDate);
+                                    onChangeStart(event, selectedDate);
+                                }}
+                            />
+                        )}
                     </>
                 )}
                 name="dataEntrada"
+                defaultValue={startDate}
             />
             <Controller
                 control={control}
-                render={({ field: { onChange, onBlur, value } }) => (
+                render={({ field: { onChange, value } }) => (
                     <>
                         <Text style={[styles.label, {width: 240}]}>Data de Saída/Previsão de Saída</Text>
-                        <TextInput
-                            style={styles.input}
-                            onBlur={onBlur}
-                            onChangeText={onChange}
-                            value={value}
-                        />
+                        <TouchableOpacity onPress={showEndDatepicker}>
+                            <TextInput
+                                style={styles.input}
+                                value={endDate.toLocaleDateString('pt-BR')}
+                                editable={false}
+                            />
+                        </TouchableOpacity>
+                        {showEnd && (
+                            <DateTimePicker
+                                value={endDate}
+                                mode="date"
+                                is24Hour={true}
+                                onChange={(event, selectedDate) => {
+                                    onChange(selectedDate);
+                                    onChangeEnd(event, selectedDate);
+                                }}
+                            />
+                        )}
                     </>
                 )}
                 name="dataSaida"
+                defaultValue={endDate}
             />
             <Controller
                 control={control}
