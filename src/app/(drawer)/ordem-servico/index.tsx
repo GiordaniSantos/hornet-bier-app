@@ -33,6 +33,15 @@ export default function Home() {
       dataEntrada: '23/12/2024',
       dataSaida: '24/12/2024',
     },
+    {
+      id: '4',
+      numeroOs: '131.26.2024',
+      status: 'FECHADO',
+      cliente: 'Indústria e Comércio de Chopeiras Ribeirão Preto ( MEMO )',
+      valorTotal: 280.00,
+      dataEntrada: '23/12/2024',
+      dataSaida: '24/12/2024',
+    },
   ];
 
   return (
