@@ -1,12 +1,13 @@
-import { router, Stack } from 'expo-router';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import { Stack } from 'expo-router';
+import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { Container } from '@/src/components/Container';
-import ListModel from '@/src/components/lists/ListModel';
 import Icon from '@expo/vector-icons/FontAwesome';
+import { useAppSelector } from '@/src/store';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 export default function Home() {
-
+	const authData = useAppSelector((state) => state.auth);
+	console.log(authData.user)
   return (
     <>
       <Stack.Screen options={{ title: 'Início' }} />

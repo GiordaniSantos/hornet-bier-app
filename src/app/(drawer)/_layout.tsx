@@ -3,14 +3,20 @@ import { View, Image, StyleSheet } from 'react-native';
 import { FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 import { Drawer } from 'expo-router/drawer';
 import { DrawerContentScrollView, DrawerItemList, DrawerContentComponentProps, DrawerItem } from '@react-navigation/drawer';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { HeaderButton } from '../../components/HeaderButton';
 import Logo from '../../../assets/images/nova-logo.png';
 import { StatusBar } from 'expo-status-bar';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/src/store';
+import { actions } from '@/src/store/auth/auth-slice';
 
 const DrawerContent = (props: DrawerContentComponentProps) => {
+  const dispatch = useDispatch<AppDispatch>();
+
   const handleLogout = () => {
-    console.log("logout")
+    dispatch(actions.logout());
+    router.push("/login")
   };
 
   return (
