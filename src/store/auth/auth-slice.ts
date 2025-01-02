@@ -22,6 +22,8 @@ const initialState: AuthState = {
 }
 
 function logout(state: AuthState) {
+    state.user = initialState.user;
+    state.token = initialState.token;
     AsyncStorage.clear()
 }
 
