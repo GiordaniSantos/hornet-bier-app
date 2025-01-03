@@ -2,113 +2,110 @@ import { Stack } from 'expo-router';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { Container } from '@/src/components/Container';
 import Icon from '@expo/vector-icons/FontAwesome';
-import { useAppSelector } from '@/src/store';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 export default function Home() {
-	const authData = useAppSelector((state) => state.auth);
-	console.log(authData.user)
-  return (
-    <>
-      <Stack.Screen options={{ title: 'Início' }} />
-      	<Container>
-			<ScrollView>
-				<View style={styles.container}>
-					<View style={styles.rowCards}>
-						<View style={[styles.card, styles.elevation]}>
-							<View style={styles.cardBody}>
-								<View style={styles.itens}>
-									<View>
-										<Text style={styles.title}>Faturamento Bruto</Text>
-										<Text style={styles.numero}>R$30.500,50</Text>
+	return (
+		<>
+			<Stack.Screen options={{ title: 'Início' }} />
+			<Container>
+				<ScrollView>
+					<View style={styles.container}>
+						<View style={styles.rowCards}>
+							<View style={[styles.card, styles.elevation]}>
+								<View style={styles.cardBody}>
+									<View style={styles.itens}>
+										<View>
+											<Text style={styles.title}>Faturamento Bruto</Text>
+											<Text style={styles.numero}>R$30.500,50</Text>
+										</View>
+										<View>
+											<Icon size={32} style={styles.icon} name={'money'}></Icon>
+										</View>
 									</View>
-									<View>
-										<Icon size={32} style={styles.icon} name={'money'}></Icon>
+								</View>
+							</View>
+						</View>
+						<View style={styles.rowCards}>
+							<View style={[styles.card, styles.elevation]}>
+								<View style={styles.cardBody}>
+									<View style={styles.itens}>
+										<View>
+											<Text style={styles.title}>Faturamento por Mão de Obra</Text>
+											<Text style={styles.numero}>R$30.500,50</Text>
+										</View>
+										<View>
+											<FontAwesome5 size={32} style={styles.icon} name={'wallet'}></FontAwesome5>
+										</View>
+									</View>
+								</View>
+							</View>
+						</View>
+						<View style={styles.rowCards}>
+							<View style={[styles.card, styles.elevation]}>
+								<View style={styles.cardBody}>
+									<View style={styles.itens}>
+										<View>
+											<Text style={styles.title}>Custo com Peças</Text>
+											<Text style={styles.numero}>R$30.500,50</Text>
+										</View>
+										<View>
+											<FontAwesome5 size={32} style={styles.icon} name={'cash-register'}></FontAwesome5>
+										</View>
+									</View>
+								</View>
+							</View>
+						</View>
+						<View style={styles.rowCards}>
+							<View style={[styles.card, styles.elevation]}>
+								<View style={styles.cardBody}>
+									<View style={styles.itens}>
+										<View>
+											<Text style={styles.title}>Total de Ordens de Serviços</Text>
+											<Text style={styles.numero}>0</Text>
+										</View>
+										<View>
+											<Icon size={32} style={styles.icon} name={'gear'}></Icon>
+										</View>
+									</View>
+								</View>
+							</View>
+						</View>
+						<View style={styles.rowCards}>
+							<View style={[styles.card, styles.elevation]}>
+								<View style={styles.cardBody}>
+									<View style={styles.itens}>
+										<View>
+											<Text style={styles.title}>Total de Clientes</Text>
+											<Text style={styles.numero}>30</Text>
+										</View>
+										<View>
+											<Icon size={32} style={styles.icon} name={'users'}></Icon>
+										</View>
+									</View>
+								</View>
+							</View>
+						</View>
+						<View style={styles.rowCards}>
+							<View style={[styles.card, styles.elevation]}>
+								<View style={styles.cardBody}>
+									<View style={styles.itens}>
+										<View>
+											<Text style={styles.title}>Usuários Administrativos</Text>
+											<Text style={styles.numero}>2</Text>
+										</View>
+										<View>
+											<Icon size={32} style={styles.icon} name={'user'}></Icon>
+										</View>
 									</View>
 								</View>
 							</View>
 						</View>
 					</View>
-					<View style={styles.rowCards}>
-						<View style={[styles.card, styles.elevation]}>
-							<View style={styles.cardBody}>
-								<View style={styles.itens}>
-									<View>
-										<Text style={styles.title}>Faturamento por Mão de Obra</Text>
-										<Text style={styles.numero}>R$30.500,50</Text>
-									</View>
-									<View>
-										<FontAwesome5 size={32} style={styles.icon} name={'wallet'}></FontAwesome5>
-									</View>
-								</View>
-							</View>
-						</View>
-					</View>
-					<View style={styles.rowCards}>
-						<View style={[styles.card, styles.elevation]}>
-							<View style={styles.cardBody}>
-								<View style={styles.itens}>
-									<View>
-										<Text style={styles.title}>Custo com Peças</Text>
-										<Text style={styles.numero}>R$30.500,50</Text>
-									</View>
-									<View>
-										<FontAwesome5 size={32} style={styles.icon} name={'cash-register'}></FontAwesome5>
-									</View>
-								</View>
-							</View>
-						</View>
-					</View>
-					<View style={styles.rowCards}>
-						<View style={[styles.card, styles.elevation]}>
-							<View style={styles.cardBody}>
-								<View style={styles.itens}>
-									<View>
-										<Text style={styles.title}>Total de Ordens de Serviços</Text>
-										<Text style={styles.numero}>0</Text>
-									</View>
-									<View>
-										<Icon size={32} style={styles.icon} name={'gear'}></Icon>
-									</View>
-								</View>
-							</View>
-						</View>
-					</View>
-					<View style={styles.rowCards}>
-						<View style={[styles.card, styles.elevation]}>
-							<View style={styles.cardBody}>
-								<View style={styles.itens}>
-									<View>
-										<Text style={styles.title}>Total de Clientes</Text>
-										<Text style={styles.numero}>30</Text>
-									</View>
-									<View>
-										<Icon size={32} style={styles.icon} name={'users'}></Icon>
-									</View>
-								</View>
-							</View>
-						</View>
-					</View>
-					<View style={styles.rowCards}>
-						<View style={[styles.card, styles.elevation]}>
-							<View style={styles.cardBody}>
-								<View style={styles.itens}>
-									<View>
-										<Text style={styles.title}>Usuários Administrativos</Text>
-										<Text style={styles.numero}>2</Text>
-									</View>
-									<View>
-										<Icon size={32} style={styles.icon} name={'user'}></Icon>
-									</View>
-								</View>
-							</View>
-						</View>
-					</View>
-				</View>
-			</ScrollView>
-		</Container>
-    </>
-  );
+				</ScrollView>
+			</Container>
+		</>
+	);
 }
 
 const styles = StyleSheet.create({

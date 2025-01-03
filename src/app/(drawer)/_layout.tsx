@@ -1,18 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Image, StyleSheet } from 'react-native';
 import { FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 import { Drawer } from 'expo-router/drawer';
 import { DrawerContentScrollView, DrawerItemList, DrawerContentComponentProps, DrawerItem } from '@react-navigation/drawer';
-import { Link, router } from 'expo-router';
+import { Link, Redirect, router } from 'expo-router';
 import { HeaderButton } from '../../components/HeaderButton';
 import Logo from '../../../assets/images/nova-logo.png';
 import { StatusBar } from 'expo-status-bar';
 import { useDispatch } from 'react-redux';
-import { AppDispatch } from '@/src/store';
-import { actions } from '@/src/store/auth/auth-slice';
+import { AppDispatch, useAppSelector } from '@/src/store';
+import { actions, verifyUserLogged } from '@/src/store/auth/auth-slice';
 
 const DrawerContent = (props: DrawerContentComponentProps) => {
   const dispatch = useDispatch<AppDispatch>();
+
+  const authData = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+      dispatch(verifyUserLogged());
+  }, []);
+
+  if(!authData.user.id){
+    return <Redirect href="/login" />;
+  }
 
   const handleLogout = () => {
     dispatch(actions.logout());
