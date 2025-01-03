@@ -10,6 +10,7 @@ interface User {
 interface AuthState {
     user: User;
     token: string;
+    isLoading: boolean;
 }
 
 const initialState: AuthState = {
@@ -18,12 +19,14 @@ const initialState: AuthState = {
         id: 0,
         nome: "",
     },
-    token: ""
+    token: "",
+    isLoading: false
 }
 
 function logout(state: AuthState) {
     state.user = initialState.user;
     state.token = initialState.token;
+    state.isLoading = false;
     AsyncStorage.clear()
 }
 
@@ -69,15 +72,29 @@ const authSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            .addCase(loginUser.pending, (state) => {
+                state.isLoading = true;
+            })
             .addCase(loginUser.fulfilled, (state, action: PayloadAction<{ user: User; token: string }>) => {
                 state.user = action.payload.user;
                 state.token = action.payload.token;
+                state.isLoading = false;
+            })
+            .addCase(loginUser.rejected, (state) => {
+                state.isLoading = false;
+            })
+            .addCase(verifyUserLogged.pending, (state) => {
+                state.isLoading = true;
             })
             .addCase(verifyUserLogged.fulfilled, (state, action: PayloadAction<{ user: User; token: string } | null>) => {
                 if (action.payload) {
                     state.user = action.payload.user;
                     state.token = action.payload.token;
                 }
+                state.isLoading = false;
+            })
+            .addCase(verifyUserLogged.rejected, (state) => {
+                state.isLoading = false;
             });
     }
 })
