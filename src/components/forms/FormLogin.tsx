@@ -1,10 +1,9 @@
 import { StyleSheet, View, Text, TextInput, Button } from 'react-native';
 import { useForm, Controller } from "react-hook-form";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { router } from 'expo-router';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/src/store';
-import { actions, loginUser } from '@/src/store/auth/auth-slice';
+import { loginUser } from '@/src/store/auth/auth-slice';
 
 type formData = {
   email: string;
@@ -22,11 +21,13 @@ export default function FormLogin() {
     })
 
     const onSubmit = async (data: formData) => {
-        //console.log(data)
-        const userData = { user: { email: 'example@example.com', id: 1, nome: 'Example' }, token: 'your_token' };
-        
+        const userData = {
+            user: {
+                email: data.email,
+                password: data.password
+            }
+        };
         await dispatch(loginUser(userData));
-        router.push("/")
     }
 
     return (
