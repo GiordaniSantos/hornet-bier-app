@@ -3,8 +3,50 @@ import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { Container } from '@/src/components/Container';
 import Icon from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { useEffect, useState } from 'react';
+import api from '@/src/services/api';
+import { showSweetAlert } from '@/src/components/sweetAlert';
+import { useAppSelector } from '@/src/store';
+
+interface ApiResponse {
+    totalOrdemServicos: number;
+    totalClientes: number;
+    totalUsers: number;
+    totalValorOrdemServicos: string;
+    totalValorMaoDeObra: string;
+    totalValorPecas: string;
+}
 
 export default function Home() {
+	const authData = useAppSelector((state) => state.auth);
+	const [data, setData] = useState<ApiResponse | null>(null);
+
+	useEffect(() => {
+        const fetchData = async () => {
+			await api.get(`/relatorio`)
+				.then(response => {
+					setData(response.data)
+				})
+				.catch(e => {
+					const errorMessage = e.response && e.response.data && e.response.data.message ? e.response.data.message : 'Ocorreu um erro inesperado.';
+				
+					showSweetAlert({
+						title: 'Erro',
+						text: errorMessage,
+						showCancelButton: false,
+						cancelButtonText: 'Cancel',
+						confirmButtonText: 'Ok',
+						onConfirm: () => {},
+						onClose: () => {},
+						type: 'danger',
+					});
+				});
+        };
+		if(authData.token){
+			fetchData();
+		}
+    }, [authData.token]);
+
 	return (
 		<>
 			<Stack.Screen options={{ title: 'Início' }} />
@@ -17,7 +59,7 @@ export default function Home() {
 									<View style={styles.itens}>
 										<View>
 											<Text style={styles.title}>Faturamento Bruto</Text>
-											<Text style={styles.numero}>R$30.500,50</Text>
+											<Text style={styles.numero}>{data ? `R$${data.totalValorOrdemServicos}` : 'Carregando...'}</Text>
 										</View>
 										<View>
 											<Icon size={32} style={styles.icon} name={'money'}></Icon>
@@ -32,7 +74,7 @@ export default function Home() {
 									<View style={styles.itens}>
 										<View>
 											<Text style={styles.title}>Faturamento por Mão de Obra</Text>
-											<Text style={styles.numero}>R$30.500,50</Text>
+											<Text style={styles.numero}>{data ? `R$${data.totalValorMaoDeObra}` : 'Carregando...'}</Text>
 										</View>
 										<View>
 											<FontAwesome5 size={32} style={styles.icon} name={'wallet'}></FontAwesome5>
@@ -47,7 +89,7 @@ export default function Home() {
 									<View style={styles.itens}>
 										<View>
 											<Text style={styles.title}>Custo com Peças</Text>
-											<Text style={styles.numero}>R$30.500,50</Text>
+											<Text style={styles.numero}>{data ? `R$${data.totalValorPecas}` : 'Carregando...'}</Text>
 										</View>
 										<View>
 											<FontAwesome5 size={32} style={styles.icon} name={'cash-register'}></FontAwesome5>
@@ -62,7 +104,7 @@ export default function Home() {
 									<View style={styles.itens}>
 										<View>
 											<Text style={styles.title}>Total de Ordens de Serviços</Text>
-											<Text style={styles.numero}>0</Text>
+											<Text style={styles.numero}>{data ? data.totalOrdemServicos.toString() : 'Carregando...'}</Text>
 										</View>
 										<View>
 											<Icon size={32} style={styles.icon} name={'gear'}></Icon>
@@ -77,7 +119,7 @@ export default function Home() {
 									<View style={styles.itens}>
 										<View>
 											<Text style={styles.title}>Total de Clientes</Text>
-											<Text style={styles.numero}>30</Text>
+											<Text style={styles.numero}>{data ? data.totalClientes.toString() : 'Carregando...'}</Text>
 										</View>
 										<View>
 											<Icon size={32} style={styles.icon} name={'users'}></Icon>
@@ -92,7 +134,7 @@ export default function Home() {
 									<View style={styles.itens}>
 										<View>
 											<Text style={styles.title}>Usuários Administrativos</Text>
-											<Text style={styles.numero}>2</Text>
+											<Text style={styles.numero}>{data ? data.totalUsers.toString() : 'Carregando...'}</Text>
 										</View>
 										<View>
 											<Icon size={32} style={styles.icon} name={'user'}></Icon>

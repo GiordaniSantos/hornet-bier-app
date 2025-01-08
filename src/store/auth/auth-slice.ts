@@ -47,7 +47,6 @@ export const loginUser = createAsyncThunk(
             
             if(res.data.user){
                 api.defaults.headers.Authorization = `Bearer ${res.data.token}`
-                api.defaults.params = { id_usuario: res.data.user.id }
                 await AsyncStorage.setItem('@MEAuth:user', JSON.stringify(res.data.user))
                 await AsyncStorage.setItem('@MEAuth:token', res.data.token)
                 router.push("/")
@@ -78,6 +77,7 @@ export const verifyUserLogged = createAsyncThunk(
             const user = await AsyncStorage.getItem('@MEAuth:user');
             
             if (token && user) {
+                api.defaults.headers.Authorization = `Bearer ${token}`
                 return { user: JSON.parse(user), token };
             }
             return null;
