@@ -1,3 +1,4 @@
+import { showSweetAlert } from "@/src/components/sweetAlert";
 import api from "@/src/services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
@@ -32,18 +33,18 @@ function logout(state: AuthState) {
 
 export const loginUser = createAsyncThunk(
     'auth/login',
-    async (userData: { user: User }, { rejectWithValue }) => {
+    async (userData: { user: User }) => {
         try {
             const { user } = userData;
-
-            const res =  await api.post(
+            
+            const res = await api.post(
                 '/login',
                 {
                     email: user.email,
                     password: user.password
                 }  
             );  
-
+            
             if(res.data.user){
                 api.defaults.headers.Authorization = `Bearer ${res.data.token}`
                 api.defaults.params = { id_usuario: res.data.user.id }
@@ -52,14 +53,25 @@ export const loginUser = createAsyncThunk(
                 router.push("/")
                 return { user: res.data.user, token: res.data.token };
             }
-        } catch (error) {
-            return rejectWithValue('Falha no Login');
+        } catch (error:any) {
+            const errorMessage = error.response && error.response.data && error.response.data.message ? error.response.data.message : 'Ocorreu um erro inesperado.';
+
+            showSweetAlert({
+                title: 'Erro',
+                text: errorMessage,
+                showCancelButton: false,
+                cancelButtonText: 'Cancel',
+                confirmButtonText: 'Ok',
+                onConfirm: () => {},
+                onClose: () => {},
+                type: 'danger',
+            });
         }
     }
 );
 
 export const verifyUserLogged = createAsyncThunk(
-    'auth/verifyUser Logged',
+    'auth/verifyUserLogged',
     async (_, { rejectWithValue }) => {
         try {
             const token = await AsyncStorage.getItem('@MEAuth:token');
