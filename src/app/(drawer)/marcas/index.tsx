@@ -6,14 +6,33 @@ import ListModel from '@/src/components/lists/ListModel';
 import { useEffect, useState } from 'react';
 import api from '@/src/services/api';
 import { showSweetAlert } from '@/src/components/sweetAlert';
+import Loading from '@/src/components/LoadingPage';
+
+interface Marca {
+  id: number;
+  nome: string;
+  created_at: string;
+}
 
 export default function Marcas() {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<Marca[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMoreData, SetHasMoreData] = useState(true);
+  const [loading, setLoading] = useState(false);
 
 	const fetchData = async () => {
+    if (!hasMoreData || loading) return;
+    setLoading(true);
     try {
-      const response = await api.get(`/marca`);
-      setData(response.data.data);
+      const response = await api.get(`/marca?page=${page}`);
+      const current = response.data.data;
+      setData(prev => [...prev, ...current]);
+      
+      if(response.data.next_page_url){
+        setPage(prev => prev + 1);
+      }else{
+        SetHasMoreData(false);
+      }
     } catch (e:any) {
       const errorMessage = e.response?.data?.message || 'Ocorreu um erro inesperado.';
       showSweetAlert({
@@ -26,6 +45,8 @@ export default function Marcas() {
         onClose: () => {},
         type: 'danger',
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -37,13 +58,16 @@ export default function Marcas() {
     <>
       <Stack.Screen options={{ title: 'Marcas' }} />
       <Container>
-        <View style={styles.container}>
-          <FlatList
-            data={data}
-            renderItem={({ item }) => <ListModel model={item} path={'marcas'} url={'marca'} onRefresh={fetchData} />}
-            keyExtractor={item => item.id}
-          />
-        </View>
+        <FlatList
+          data={data}
+          renderItem={({ item }) => <ListModel model={item} path={'marcas'} url={'marca'} onRefresh={fetchData} />}
+          keyExtractor={item => item.id.toString()}
+          onEndReached={fetchData}
+          onEndReachedThreshold={0.1}
+          ListFooterComponent={
+            <Loading loading={hasMoreData} />
+          }
+        />
         <TouchableOpacity style={styles.addButton} onPress={() => {router.push("/marcas/create")}} activeOpacity={0.7}>
           <FontAwesome5 name="plus" size={20} color={'#FFF'} />
         </TouchableOpacity>
@@ -53,9 +77,6 @@ export default function Marcas() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
   addButton: {
     position: 'absolute',
     right: 15,
