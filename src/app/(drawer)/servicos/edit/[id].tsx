@@ -40,26 +40,26 @@ export default function EditServico() {
         fetchData()
     }, []);
 
-     if (loading) {
-            return (
-                <Container>
-                    <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="large" color="#ff3a00" />
-                        <Text>Carregando...</Text>
-                    </View>
-                </Container>
-            );
-        }
+    if (loading) {
+        return (
+            <Container>
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color="#ff3a00" />
+                    <Text>Carregando...</Text>
+                </View>
+            </Container>
+        );
+    }
     
-        if (!servico) {
-            return (
-                <Container>
-                    <View style={styles.errorContainer}>
-                        <Text>Serviço não encontrado.</Text>
-                    </View>
-                </Container>
-            );
-        }
+    if (!servico) {
+        return (
+            <Container>
+                <View style={styles.errorContainer}>
+                    <Text>Serviço não encontrado.</Text>
+                </View>
+            </Container>
+        );
+    }
 
     return (
         <>

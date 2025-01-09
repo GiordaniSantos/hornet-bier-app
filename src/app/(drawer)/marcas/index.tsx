@@ -3,20 +3,35 @@ import { StyleSheet, View, TouchableOpacity, FlatList } from 'react-native';
 import { Container } from '@/src/components/Container';
 import { FontAwesome5 } from '@expo/vector-icons';
 import ListModel from '@/src/components/lists/ListModel';
+import { useEffect, useState } from 'react';
+import api from '@/src/services/api';
+import { showSweetAlert } from '@/src/components/sweetAlert';
 
 export default function Marcas() {
-  const marcas = [
-    {
-      id: 1,
-      nome: 'Ice Box',
-      dataCriacao: '24/12/2024',
-    },   
-    {
-      id: 2,
-      nome: 'Menila',
-      dataCriacao: '24/12/2024',
-    },
-  ];
+  const [data, setData] = useState(null);
+
+	const fetchData = async () => {
+    try {
+      const response = await api.get(`/marca`);
+      setData(response.data.data);
+    } catch (e:any) {
+      const errorMessage = e.response?.data?.message || 'Ocorreu um erro inesperado.';
+      showSweetAlert({
+        title: 'Erro',
+        text: errorMessage,
+        showCancelButton: false,
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Ok',
+        onConfirm: () => {},
+        onClose: () => {},
+        type: 'danger',
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <>
@@ -24,8 +39,8 @@ export default function Marcas() {
       <Container>
         <View style={styles.container}>
           <FlatList
-            data={marcas}
-            renderItem={({ item }) => <ListModel model={item} path={'marcas'} />}
+            data={data}
+            renderItem={({ item }) => <ListModel model={item} path={'marcas'} url={'marca'} onRefresh={fetchData} />}
             keyExtractor={item => item.id}
           />
         </View>
