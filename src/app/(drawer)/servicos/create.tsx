@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { Container } from '@/src/components/Container';
-import FormProblema from '@/src/components/forms/FormProblema';
+import FormServico from '@/src/components/forms/FormServico';
 
 export default function CreateServico() {
   return (
@@ -11,7 +11,7 @@ export default function CreateServico() {
         <View style={styles.container}>
           <ScrollView>
             <View style={styles.containerForm}>
-              <FormProblema />
+              <FormServico />
             </View>
           </ScrollView>
         </View>
