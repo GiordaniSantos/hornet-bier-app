@@ -3,20 +3,35 @@ import { StyleSheet, View, TouchableOpacity, FlatList } from 'react-native';
 import { Container } from '@/src/components/Container';
 import { FontAwesome5 } from '@expo/vector-icons';
 import ListModel from '@/src/components/lists/ListModel';
+import { showSweetAlert } from '@/src/components/sweetAlert';
+import { useEffect, useState } from 'react';
+import api from '@/src/services/api';
 
 export default function Problemas() {
-  const problemas = [
-    {
-      id: 1,
-      nome: 'Cooler Queimado 15x15x50',
-      dataCriacao: '24/12/2024',
-    },   
-    {
-      id: 2,
-      nome: 'Fabricação Chopeira',
-      dataCriacao: '24/12/2024',
-    },
-  ];
+  const [data, setData] = useState(null);
+
+	const fetchData = async () => {
+    try {
+      const response = await api.get(`/problema`);
+      setData(response.data.data);
+    } catch (e:any) {
+      const errorMessage = e.response?.data?.message || 'Ocorreu um erro inesperado.';
+      showSweetAlert({
+        title: 'Erro',
+        text: errorMessage,
+        showCancelButton: false,
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Ok',
+        onConfirm: () => {},
+        onClose: () => {},
+        type: 'danger',
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <>
@@ -24,8 +39,8 @@ export default function Problemas() {
       <Container>
         <View style={styles.container}>
           <FlatList
-            data={problemas}
-            renderItem={({ item }) => <ListModel model={item} path={'problemas'} />}
+            data={data}
+            renderItem={({ item }) => <ListModel model={item} path={'problemas'} url={'problema'} onRefresh={fetchData} />}
             keyExtractor={item => item.id}
           />
         </View>

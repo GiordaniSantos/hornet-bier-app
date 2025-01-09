@@ -1,40 +1,98 @@
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
+import api from '@/src/services/api';
+import { showSweetAlert } from '../sweetAlert';
 
 interface Model {
-    id: number;
-    nome: string;
-    dataCriacao: string;
+  id: number;
+  nome: string;
+  created_at: string;
 }
 
 interface ListModelProps {
-    model: Model;
-    path: string;
+  model: Model;
+  url: string;
+  path: string;
+  onRefresh: Function
 }
 
-export default function ListModel({model, path}: ListModelProps) {
+export default function ListModel({model, path, url, onRefresh}: ListModelProps) {
 
-    return (
-        <View style={styles.card}>
-            <View style={{padding:16}}>
-                <View style={styles.header}>
-                    <View>
-                        <Text style={styles.title}>{model.nome}</Text>
-                    </View>
-                </View>
-                <Text style={styles.item}>Data de Criação: {model.dataCriacao}</Text>
-                <View style={styles.containerButtons}>
-                    <Link href={`/${path}/edit/${model.id}`} style={styles.button} asChild>
-                        <FontAwesome5 name="edit" size={14} color={'#000'} />
-                    </Link>
-                    <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to project */}}>
-                        <FontAwesome5 name="trash" size={14} color={'#000'} />
-                    </TouchableOpacity>
-                </View>
-            </View>
+  function formatDate(isoDate : string) {
+    const date = new Date(isoDate);
+
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year = String(date.getUTCFullYear());
+
+    return `${day}/${month}/${year}`;
+  }
+
+  const deleteModel = async (id:number) => {
+    try {
+      await api.delete(`/${url}/${id}`)
+      showSweetAlert({
+        title: 'Sucesso!',
+        text: 'Registro deletado com sucesso!',
+        showCancelButton: false,
+        cancelButtonText: 'Não, cancelar',
+        confirmButtonText: 'Ok',
+        onConfirm: () => {},
+        onClose: () => {},
+        type: 'success',
+      });
+      onRefresh()
+    } catch (e:any) {
+      const errorMessage = e.response && e.response.data && e.response.data.message ? e.response.data.message : 'Ocorreu um erro inesperado.';
+
+      showSweetAlert({
+          title: 'Erro',
+          text: errorMessage,
+          showCancelButton: false,
+          cancelButtonText: 'Cancel',
+          confirmButtonText: 'Ok',
+          onConfirm: () => {},
+          onClose: () => {},
+          type: 'danger',
+      });
+    }
+  }
+
+
+  return (
+    <View style={styles.card}>
+      <View style={{padding:16}}>
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.title}>{model.nome}</Text>
+          </View>
         </View>
-    );
+        <Text style={styles.item}>Data de Criação: {formatDate(model.created_at)}</Text>
+        <View style={styles.containerButtons}>
+          <Link href={`/${path}/edit/${model.id}`} style={styles.button} asChild>
+            <FontAwesome5 name="edit" size={14} color={'#000'} />
+          </Link>
+          <TouchableOpacity style={styles.button} onPress={() => {
+            showSweetAlert({
+              title: 'Deletar Registro',
+              text: 'Você tem certeza que quer deletar este registro?',
+              showCancelButton: true,
+              cancelButtonText: 'Não, cancelar',
+              confirmButtonText: 'Sim, deletar!',
+              onConfirm: () => {
+                deleteModel(model.id)
+              },
+              onClose: () => {},
+              type: 'info',
+            });
+          }}>
+            <FontAwesome5 name="trash" size={14} color={'#000'} />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
