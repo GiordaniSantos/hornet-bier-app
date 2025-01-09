@@ -6,6 +6,7 @@ import ListModel from '@/src/components/lists/ListModel';
 import { useEffect, useState } from 'react';
 import api from '@/src/services/api';
 import { showSweetAlert } from '@/src/components/sweetAlert';
+import Loading from '@/src/components/LoadingPage';
 
 interface Servico {
   id: number;
@@ -75,17 +76,7 @@ export default function Servicos() {
   );
 }
 
-function Loading({loading}:{loading:boolean}){
-  if(loading){
-    return <ActivityIndicator size={'large'} color={'#ff3a00'} style={{marginBottom: 20, marginTop: 15}} />
-  }
-  return null;
-}
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
   addButton: {
     position: 'absolute',
     right: 15,
