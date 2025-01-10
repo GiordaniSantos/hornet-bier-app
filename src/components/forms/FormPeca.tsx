@@ -1,91 +1,148 @@
 import { StyleSheet, View, Text, TextInput, Button } from 'react-native';
 import { useForm, Controller } from "react-hook-form";
 import { moedaApplyMask } from '@/src/utils/masks';
+import api from '@/src/services/api';
+import { showSweetAlert } from '../sweetAlert';
+import { router } from 'expo-router';
 
 type formData = {
-    nome: string;
-    valorUnitario: number;
+  nome: string;
+  valor_unitario: string;
 }
 
 interface Peca {
-    nome: string;
-    valorUnitario: number;
+  id: number;
+  nome: string;
+  valor_unitario: string;
 }
   
 interface FormPecaProps {
-    peca?: Peca;
+  peca?: Peca;
 }
 
 export default function FormPeca({peca}: FormPecaProps) {
+  function convertValor(valor:string){
+    const valorEmReais = parseFloat(valor);
 
-    const { control, handleSubmit, formState: { errors } } = useForm<formData>({
-        defaultValues: {
-            nome: peca?.nome || "",
-            valorUnitario: peca?.valorUnitario || 0
-        },
-    })
+    return moedaApplyMask(valorEmReais);
+  }
 
-    const onSubmit = (data: formData) => {
-        console.log(data)
+  const { control, handleSubmit, formState: { errors } } = useForm<formData>({
+    defaultValues: {
+      nome: peca?.nome || "",
+      valor_unitario: peca && peca.valor_unitario ? convertValor(peca.valor_unitario) : '0'
+    },
+  })
+
+  const createOrUpdatePeca = async (data:formData, isCreate:boolean) => {
+    const url = isCreate ? `/peca` : `/peca/${peca?.id}`;
+    const successMessage = isCreate ? 'Peça criada com sucesso!' : 'Peça atualizada com sucesso!';
+
+    try {
+      if (isCreate) {
+        await api.post(url, {
+          nome: data.nome,
+          valor_unitario: data.valor_unitario
+        });
+      } else {
+        await api.put(url, {
+          nome: data.nome,
+          valor_unitario: data.valor_unitario
+        });
+      }
+
+      showSweetAlert({
+        title: 'Sucesso!',
+        text: successMessage,
+        showCancelButton: false,
+        cancelButtonText: 'Não, cancelar',
+        confirmButtonText: 'Ok',
+        onConfirm: () => {},
+        onClose: () => {},
+        type: 'success',
+      });
+      router.push('/pecas')
+    } catch (e: any) {
+      const errorMessage = e.response && e.response.data && e.response.data.message ? e.response.data.message : 'Ocorreu um erro inesperado.';
+
+      showSweetAlert({
+        title: 'Erro',
+        text: errorMessage,
+        showCancelButton: false,
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Ok',
+        onConfirm: () => {},
+        onClose: () => {},
+        type: 'danger',
+      });
     }
+  }
 
-    return (
-        <>
-            <Controller
-                control={control}
-                rules={{
-                    required: true,
-                    maxLength: 250
-                }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                    <>
-                        <Text style={[styles.label, {width: 55}]}>Nome</Text>
-                        <TextInput
-                            style={styles.input}
-                            onBlur={onBlur}
-                            onChangeText={onChange}
-                            value={value}
-                        />
-                        {errors.nome && errors.nome.type == "required" && <Text style={styles.textError}>Preencha este campo!</Text>}
-                        {errors.nome && errors.nome.type == "maxLength" && <Text style={styles.textError}>No máximo 250 caracteres!</Text>}
-                    </>
-                )}
-                name="nome"
+  const onSubmit = (data: formData) => {
+    if(!peca){
+      createOrUpdatePeca(data, true)
+      return
+    }
+    createOrUpdatePeca(data, false)
+  }
+
+  return (
+    <>
+      <Controller
+        control={control}
+        rules={{
+          required: true,
+          maxLength: 250
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <>
+            <Text style={[styles.label, {width: 55}]}>Nome</Text>
+            <TextInput
+              style={styles.input}
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
             />
-            <Controller
-                control={control}
-                rules={{
-                    required: true,
-                    maxLength: 250
-                }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                    <>
-                        <Text style={[styles.label, {width: 142}]}>Valor Unitário (R$)</Text>
-                        <TextInput
-                            style={styles.input}
-                            onBlur={onBlur}
-                            keyboardType='numeric'
-                            onChangeText={text => {
-                                const apenasNumeros = text.replace(/\D/g, '');
+            {errors.nome && errors.nome.type == "required" && <Text style={styles.textError}>Preencha este campo!</Text>}
+            {errors.nome && errors.nome.type == "maxLength" && <Text style={styles.textError}>No máximo 250 caracteres!</Text>}
+          </>
+        )}
+        name="nome"
+      />
+      <Controller
+        control={control}
+        rules={{
+          required: true,
+          maxLength: 250
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <>
+            <Text style={[styles.label, {width: 142}]}>Valor Unitário (R$)</Text>
+            <TextInput
+              style={styles.input}
+              onBlur={onBlur}
+              keyboardType='numeric'
+              onChangeText={text => {
+                const apenasNumeros = text.replace(/\D/g, '');
 
-                                const valorEmReais = parseFloat(apenasNumeros) / 100;
+                const valorEmReais = parseFloat(apenasNumeros) / 100;
 
-                                const valueMoeda = moedaApplyMask(valorEmReais);
-                                onChange(valueMoeda);
-                            }}
-                            value={value ? value.toString() : ''}
-                        />
-                        {errors.valorUnitario && errors.valorUnitario.type == "required" && <Text style={styles.textError}>Preencha este campo!</Text>}
-                        {errors.valorUnitario && errors.valorUnitario.type == "maxLength" && <Text style={styles.textError}>No máximo 250 caracteres!</Text>}
-                    </>
-                )}
-                name="valorUnitario"
+                const valueMoeda = moedaApplyMask(valorEmReais);
+                onChange(valueMoeda);
+              }}
+              value={value ? value.toString() : ''}
             />
-            <View style={styles.buttonSave}>
-                <Button title={peca ? "Atualizar" : "Cadastrar"} color={'#1cc88a'} onPress={handleSubmit(onSubmit)} />
-            </View>
-        </>
-    );
+            {errors.valor_unitario && errors.valor_unitario.type == "required" && <Text style={styles.textError}>Preencha este campo!</Text>}
+            {errors.valor_unitario && errors.valor_unitario.type == "maxLength" && <Text style={styles.textError}>No máximo 250 caracteres!</Text>}
+          </>
+        )}
+        name="valor_unitario"
+      />
+      <View style={styles.buttonSave}>
+        <Button title={peca ? "Atualizar" : "Cadastrar"} color={'#1cc88a'} onPress={handleSubmit(onSubmit)} />
+      </View>
+    </>
+  );
 }
 
 const styles = StyleSheet.create({

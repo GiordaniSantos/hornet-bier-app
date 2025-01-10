@@ -60,7 +60,7 @@ export default function Problemas() {
       <Container>
         <FlatList
           data={data}
-          renderItem={({ item }) => <ListModel model={item} path={'problemas'} url={'problema'} onRefresh={fetchData} />}
+          renderItem={({ item }) => <ListModel model={item} path={'problemas'} url={'problema'} />}
           keyExtractor={item => item.id.toString()}
           onEndReached={fetchData}
           onEndReachedThreshold={0.1}

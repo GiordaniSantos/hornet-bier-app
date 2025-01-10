@@ -14,10 +14,9 @@ interface ListModelProps {
   model: Model;
   url: string;
   path: string;
-  onRefresh: Function
 }
 
-export default function ListModel({model, path, url, onRefresh}: ListModelProps) {
+export default function ListModel({model, path, url}: ListModelProps) {
 
   function formatDate(isoDate : string) {
     const date = new Date(isoDate);
@@ -42,7 +41,7 @@ export default function ListModel({model, path, url, onRefresh}: ListModelProps)
         onClose: () => {},
         type: 'success',
       });
-      onRefresh()
+      router.replace(`/${path}`)
     } catch (e:any) {
       const errorMessage = e.response && e.response.data && e.response.data.message ? e.response.data.message : 'Ocorreu um erro inesperado.';
 

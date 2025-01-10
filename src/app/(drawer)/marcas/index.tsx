@@ -60,7 +60,7 @@ export default function Marcas() {
       <Container>
         <FlatList
           data={data}
-          renderItem={({ item }) => <ListModel model={item} path={'marcas'} url={'marca'} onRefresh={fetchData} />}
+          renderItem={({ item }) => <ListModel model={item} path={'marcas'} url={'marca'} />}
           keyExtractor={item => item.id.toString()}
           onEndReached={fetchData}
           onEndReachedThreshold={0.1}

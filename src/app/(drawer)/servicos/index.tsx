@@ -60,7 +60,7 @@ export default function Servicos() {
       <Container>
         <FlatList
           data={data}
-          renderItem={({ item }) => <ListModel model={item} path={'servicos'} url={'servico'} onRefresh={fetchData} />}
+          renderItem={({ item }) => <ListModel model={item} path={'servicos'} url={'servico'} />}
           keyExtractor={item => item.id.toString()}
           onEndReached={fetchData}
           onEndReachedThreshold={0.1}
