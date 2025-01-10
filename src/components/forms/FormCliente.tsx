@@ -1,28 +1,32 @@
 import { StyleSheet, View, Text, TextInput, Button } from 'react-native';
 import { useForm, Controller } from "react-hook-form";
 import { cpfApplyMask, cnpjApplyMask, celularApplyMask, telefoneApplyMask } from '@/src/utils/masks';
+import api from '@/src/services/api';
+import { showSweetAlert } from '../sweetAlert';
+import { router } from 'expo-router';
 
 type formData = {
-  nome: string;
-  nomeContato: string;
-  email: string;
-  cpfCnpj: string;
-  cidade: string;
-  celular: string;
-  celularSecundario: string;
-  telefone: string;
+    nome: string;
+    nome_contato: string;
+    email: string;
+    cpf_cnpj: string;
+    cidade: string;
+    celular: string;
+    celular_secundario: string;
+    telefone: string;
 }
 
 interface Cliente {
+    id: number;
     nome: string;
-    nomeContato?: string;
+    nome_contato?: string;
     email?: string;
-    cpfCnpj?: string;
+    cpf_cnpj?: string;
     cidade?: string;
     celular?: string;
-    celularSecundario?: string;
+    celular_secundario?: string;
     telefone?: string;
-  }
+}
   
 interface FormClienteProps {
     cliente?: Cliente;
@@ -33,18 +37,78 @@ export default function FormCliente({cliente}: FormClienteProps) {
     const { control, handleSubmit, formState: { errors } } = useForm<formData>({
         defaultValues: {
             nome: cliente?.nome || "",
-            nomeContato: cliente?.nomeContato || "",
+            nome_contato: cliente?.nome_contato || "",
             email: cliente?.email || "",
-            cpfCnpj: cliente?.cpfCnpj || "",
+            cpf_cnpj: cliente?.cpf_cnpj || "",
             cidade: cliente?.cidade || "",
             celular: cliente?.celular || "",
-            celularSecundario: cliente?.celularSecundario || "",
+            celular_secundario: cliente?.celular_secundario || "",
             telefone: cliente?.telefone || ""
         },
     })
 
+    const createOrUpdateCliente = async (data:formData, isCreate:boolean) => {
+        const url = isCreate ? `/cliente` : `/cliente/${cliente?.id}`;
+        const successMessage = isCreate ? 'Cliente criado com sucesso!' : 'Cliente atualizado com sucesso!';
+    
+        try {
+            if (isCreate) {
+                await api.post(url, {
+                    nome: data.nome,
+                    nome_contato: data.nome_contato,
+                    email: data.email,
+                    cpf_cnpj: data.cpf_cnpj,
+                    cidade: data.cidade,
+                    celular: data.celular,
+                    celular_secundario: data.celular_secundario,
+                    telefone: data.telefone
+                });
+            } else {
+                await api.put(url, {
+                    nome: data.nome,
+                    nome_contato: data.nome_contato,
+                    email: data.email,
+                    cpf_cnpj: data.cpf_cnpj,
+                    cidade: data.cidade,
+                    celular: data.celular,
+                    celular_secundario: data.celular_secundario,
+                    telefone: data.telefone
+                });
+            }
+    
+            showSweetAlert({
+                title: 'Sucesso!',
+                text: successMessage,
+                showCancelButton: false,
+                cancelButtonText: 'Não, cancelar',
+                confirmButtonText: 'Ok',
+                onConfirm: () => {},
+                onClose: () => {},
+                type: 'success',
+            });
+            router.push('/clientes')
+        } catch (e: any) {
+            const errorMessage = e.response && e.response.data && e.response.data.message ? e.response.data.message : 'Ocorreu um erro inesperado.';
+        
+            showSweetAlert({
+                title: 'Erro',
+                text: errorMessage,
+                showCancelButton: false,
+                cancelButtonText: 'Cancel',
+                confirmButtonText: 'Ok',
+                onConfirm: () => {},
+                onClose: () => {},
+                type: 'danger',
+            });
+        }
+    }
+
     const onSubmit = (data: formData) => {
-        console.log(data)
+        if(!cliente){
+          createOrUpdateCliente(data, true)
+          return
+        }
+        createOrUpdateCliente(data, false)
     }
 
     return (
@@ -84,10 +148,10 @@ export default function FormCliente({cliente}: FormClienteProps) {
                             onChangeText={onChange}
                             value={value}
                         />
-                        {errors.nomeContato && <Text style={styles.textError}>No máximo 250 caracteres!</Text>}
+                        {errors.nome_contato && <Text style={styles.textError}>No máximo 250 caracteres!</Text>}
                     </>
                 )}
-                name="nomeContato"
+                name="nome_contato"
             />
             <Controller
                 control={control}
@@ -145,10 +209,10 @@ export default function FormCliente({cliente}: FormClienteProps) {
                             }}
                             value={value}
                         />
-                        {errors.cpfCnpj && <Text style={styles.textError}>O campo deve ter no mínimo 11 caracteres!</Text>}
+                        {errors.cpf_cnpj && <Text style={styles.textError}>O campo deve ter no mínimo 11 caracteres!</Text>}
                     </>
                 )}
-                name="cpfCnpj"
+                name="cpf_cnpj"
             />
             <Controller
                 control={control}
@@ -214,10 +278,10 @@ export default function FormCliente({cliente}: FormClienteProps) {
                             }}
                             value={value}
                         />
-                        {errors.celularSecundario && <Text style={styles.textError}>O campo deve ter no mínimo 15 caracteres!</Text>}
+                        {errors.celular_secundario && <Text style={styles.textError}>O campo deve ter no mínimo 15 caracteres!</Text>}
                     </>
                 )}
-                name="celularSecundario"
+                name="celular_secundario"
             />
             <Controller
                 control={control}

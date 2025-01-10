@@ -3,6 +3,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { Link, router } from 'expo-router';
 import api from '@/src/services/api';
 import { showSweetAlert } from '../sweetAlert';
+import { formatDate } from '@/src/utils/format-date';
 
 interface Model {
   id: number;
@@ -17,16 +18,6 @@ interface ListModelProps {
 }
 
 export default function ListModel({model, path, url}: ListModelProps) {
-
-  function formatDate(isoDate : string) {
-    const date = new Date(isoDate);
-
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const year = String(date.getUTCFullYear());
-
-    return `${day}/${month}/${year}`;
-  }
 
   const deleteModel = async (id:number) => {
     try {

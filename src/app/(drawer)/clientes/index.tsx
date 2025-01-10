@@ -3,34 +3,72 @@ import { StyleSheet, View, TouchableOpacity, FlatList } from 'react-native';
 import { Container } from '@/src/components/Container';
 import { FontAwesome5 } from '@expo/vector-icons';
 import ListCliente from '@/src/components/lists/ListCliente';
+import { useEffect, useState } from 'react';
+import api from '@/src/services/api';
+import { showSweetAlert } from '@/src/components/sweetAlert';
+import Loading from '@/src/components/LoadingPage';
+
+interface Cliente {
+  id: number;
+  nome: string;
+  nome_contato: string;
+  cpf_cnpj: string;
+}
 
 export default function Clientes() {
-  const clientes = [
-    {
-      id: 1,
-      nome: 'Indústria e Comércio de Chopeiras Ribeirão Preto ( MEMO )',
-      nomeContato: 'Mônica',
-      cpfCnpj: '07.874.061/0001-27',
-    },   
-    {
-      id: 2,
-      nome: 'Indústria e Comércio de Chopeiras Ribeirão Preto ( MEMO )',
-      nomeContato: 'Mônica',
-      cpfCnpj: '07.874.061/0001-27',
-    }, 
-  ];
+  const [data, setData] = useState<Cliente[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMoreData, SetHasMoreData] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+	const fetchData = async () => {
+    if (!hasMoreData || loading) return;
+    setLoading(true);
+    try {
+      const response = await api.get(`/cliente?page=${page}`);
+      const current = response.data.data;
+      setData(prev => [...prev, ...current]);
+      
+      if(response.data.next_page_url){
+        setPage(prev => prev + 1);
+      }else{
+        SetHasMoreData(false);
+      }
+    } catch (e:any) {
+      const errorMessage = e.response?.data?.message || 'Ocorreu um erro inesperado.';
+      showSweetAlert({
+        title: 'Erro',
+        text: errorMessage,
+        showCancelButton: false,
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Ok',
+        onConfirm: () => {},
+        onClose: () => {},
+        type: 'danger',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <>
       <Stack.Screen options={{ title: 'Clientes' }} />
       <Container>
-        <View style={styles.container}>
-          <FlatList
-            data={clientes}
-            renderItem={({ item }) => <ListCliente cliente={item} />}
-            keyExtractor={item => item.id}
-          />
-        </View>
+        <FlatList
+          data={data}
+          renderItem={({ item }) => <ListCliente cliente={item} />}
+          keyExtractor={item => item.id.toString()}
+          onEndReached={fetchData}
+          onEndReachedThreshold={0.1}
+          ListFooterComponent={
+            <Loading loading={hasMoreData} />
+          }
+        />
         <TouchableOpacity style={styles.addButton} onPress={() => {router.push("/clientes/create")}} activeOpacity={0.7}>
           <FontAwesome5 name="plus" size={20} color={'#FFF'} />
         </TouchableOpacity>
@@ -40,9 +78,6 @@ export default function Clientes() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
   addButton: {
     position: 'absolute',
     right: 15,
