@@ -4,6 +4,7 @@ import { moedaApplyMask } from '@/src/utils/masks';
 import api from '@/src/services/api';
 import { showSweetAlert } from '../sweetAlert';
 import { router } from 'expo-router';
+import { convertValor } from '@/src/utils/format-valor-to-real';
 
 type formData = {
   nome: string;
@@ -21,12 +22,7 @@ interface FormPecaProps {
 }
 
 export default function FormPeca({peca}: FormPecaProps) {
-  function convertValor(valor:string){
-    const valorEmReais = parseFloat(valor);
-
-    return moedaApplyMask(valorEmReais);
-  }
-
+  
   const { control, handleSubmit, formState: { errors } } = useForm<formData>({
     defaultValues: {
       nome: peca?.nome || "",

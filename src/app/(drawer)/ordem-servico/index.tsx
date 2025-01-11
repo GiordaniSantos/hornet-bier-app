@@ -3,58 +3,75 @@ import { StyleSheet, View, TouchableOpacity, FlatList } from 'react-native';
 import { Container } from '@/src/components/Container';
 import { FontAwesome5 } from '@expo/vector-icons';
 import ListOrdemServico from '@/src/components/lists/ListOrdemServico';
+import { useEffect, useState } from 'react';
+import api from '@/src/services/api';
+import { showSweetAlert } from '@/src/components/sweetAlert';
+import Loading from '@/src/components/LoadingPage';
+
+interface OrdemServico {
+  id: number;
+  numero: string;
+  status: string;
+  valor_total: string;
+  data_entrada: string;
+  data_saida: string;
+  cliente_nome: string;
+}
 
 export default function Home() {
-  const ordensServico = [
-    {
-      id: '1',
-      numeroOs: '131.26.2024',
-      status: 'ABERTO',
-      cliente: 'DublinBier',
-      valorTotal: 280.00,
-      dataEntrada: '23/12/2024',
-      dataSaida: '24/12/2024',
-    },
-    {
-      id: '2',
-      numeroOs: '131.26.2024',
-      status: 'EM ANDAMENTO',
-      cliente: 'Indústria e Comércio de Chopeiras Ribeirão Preto ( MEMO )',
-      valorTotal: 280.00,
-      dataEntrada: '23/12/2024',
-      dataSaida: '24/12/2024',
-    },
-    {
-      id: '3',
-      numeroOs: '131.26.2024',
-      status: 'FECHADO',
-      cliente: 'Indústria e Comércio de Chopeiras Ribeirão Preto ( MEMO )',
-      valorTotal: 280.00,
-      dataEntrada: '23/12/2024',
-      dataSaida: '24/12/2024',
-    },
-    {
-      id: '4',
-      numeroOs: '131.26.2024',
-      status: 'FECHADO',
-      cliente: 'Indústria e Comércio de Chopeiras Ribeirão Preto ( MEMO )',
-      valorTotal: 280.00,
-      dataEntrada: '23/12/2024',
-      dataSaida: '24/12/2024',
-    },
-  ];
+  const [data, setData] = useState<OrdemServico[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMoreData, SetHasMoreData] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+	const fetchData = async () => {
+    if (!hasMoreData || loading) return;
+    setLoading(true);
+    try {
+      const response = await api.get(`/ordem-servico?page=${page}`);
+      const current = response.data.data;
+      setData(prev => [...prev, ...current]);
+      
+      if(response.data.next_page_url){
+        setPage(prev => prev + 1);
+      }else{
+        SetHasMoreData(false);
+      }
+    } catch (e:any) {
+      const errorMessage = e.response?.data?.message || 'Ocorreu um erro inesperado.';
+      showSweetAlert({
+        title: 'Erro',
+        text: errorMessage,
+        showCancelButton: false,
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Ok',
+        onConfirm: () => {},
+        onClose: () => {},
+        type: 'danger',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <>
       <Stack.Screen options={{ title: 'Home' }} />
       <Container>
-        <View style={styles.container}>
-          <FlatList
-            data={ordensServico}
-            renderItem={({ item }) => <ListOrdemServico ordemServico={item} />}
-            keyExtractor={item => item.id}
-          />
-        </View>
+        <FlatList
+          data={data}
+          renderItem={({ item }) => <ListOrdemServico ordemServico={item} />}
+          keyExtractor={item => item.id.toString()}
+          onEndReached={fetchData}
+          onEndReachedThreshold={0.1}
+          ListFooterComponent={
+            <Loading loading={hasMoreData} />
+          }
+        />
         <TouchableOpacity style={styles.addButton} onPress={() => {router.push("/ordem-servico/create")}} activeOpacity={0.7}>
           <FontAwesome5 name="plus" size={20} color={'#FFF'} />
         </TouchableOpacity>
@@ -64,9 +81,6 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
   addButton: {
     position: 'absolute',
     right: 15,

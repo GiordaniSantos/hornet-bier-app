@@ -1,64 +1,119 @@
 import { Stack } from 'expo-router';
-import { StyleSheet, View, Text, TouchableOpacity, Button, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Button, ScrollView, ActivityIndicator } from 'react-native';
 import { Container } from '@/src/components/Container';
 import { useLocalSearchParams } from 'expo-router';
 import Detail from '@/src/components/details/Detail';
+import { useEffect, useState } from 'react';
+import api from '@/src/services/api';
+import { formatDateTime } from '@/src/utils/format-date-time';
+import { showSweetAlert } from '@/src/components/sweetAlert';
+import { convertValor } from '@/src/utils/format-valor-to-real';
+
+interface OrdemServicoData {
+  label: string;
+  value: any;
+}
 
 export default function ViewOS() {
-    const { id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams();
 
-    const dados = [
-        { label: 'ID:', value: id },
-        { label: 'Número da OS:', value: '131.26.2024' },
-        { label: 'Marca:', value: 'Bauer' },
-        { label: 'Modelo:', value: 'Triângulo' },
-        { label: 'Série:', value: '- - - -' },
-        { label: 'Número do Motor:', value: '----' },
-        { label: 'Cliente:', value: 'DublinBier' },
-        { label: 'Problemas:', value: 'Revisão' },
-        { label: 'Peças Utilizadas:', value: 'Ventilador - R$98,50 x 1 = R$98,50\n\nValor Total de Peças: R$98,50' },
-        { label: 'Serviços Prestados:', value: 'Desmontagem\nLimpeza\nTroca do Ventilador\nAjuste da temperatura de 0 a -1 grau' },
-        { label: 'Valor Mão de Obra:', value: 'R$181,50' },
-        { label: 'Valor Total:', value: 'R$280,00' },
-        { label: 'Status:', value: 'Fechado' },
-        { label: 'Data de Entrada:', value: '23/12/2024' },
-        { label: 'Data de Saída:', value: '24/12/2024' },
-        { label: 'Observações:', value: 'Chopeira Triângulo igual do Bender, motor embraco FFi12HBX' },
-        { label: 'Data de Criação da OS:', value: '23/12/2024 às 23:31h' },
-        { label: 'Data Modificação:', value: '24/12/2024 às 09:52h' },
-    ];
-  
+  const [dados, setDados] = useState<OrdemServicoData[]>([]);
+  const [ordemServico, setOrdemServico] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      await api.get(`/ordem-servico/view/${id}`)
+        .then(response => {
+          setOrdemServico(response.data)
+          const ordemServicoDados: OrdemServicoData[] = [
+            { label: 'ID:', value: response.data.id },
+            { label: 'Número da OS:', value: response.data.numero },
+            { label: 'Marca:', value: response.data.marca },
+            { label: 'Modelo:', value: response.data.modelo },
+            { label: 'Série:', value: response.data.serie },
+            { label: 'Número do Motor:', value: response.data.numero_motor },
+            { label: 'Cliente:', value: response.data.cliente },
+            { label: 'Problemas:', value: response.data.problemas },
+            { label: 'Peças Utilizadas:', value: response.data.pecas },
+            { label: 'Serviços Prestados:', value: response.data.servicos },
+            { label: 'Valor Mão de Obra:', value: `R$${convertValor(response.data.valor_mao_de_obra)}` },
+            { label: 'Valor Total:', value: `R$${convertValor(response.data.valor_total)}` },
+            { label: 'Status:', value: response.data.status },
+            { label: 'Data de Entrada:', value: response.data.data_entrada },
+            { label: 'Data de Saída:', value: response.data.data_saida },
+            { label: 'Observações:', value: response.data.observacao },
+            { label: 'Data de Criação da OS:', value: formatDateTime(response.data.data_criacao) },
+            { label: 'Data Modificação:', value: formatDateTime(response.data.data_modificacao) },
+          ];
+          setDados(ordemServicoDados);
+        })
+        .catch(e => {
+          const errorMessage = e.response && e.response.data && e.response.data.message ? e.response.data.message : 'Ocorreu um erro inesperado.';
+          
+          showSweetAlert({
+            title: 'Erro',
+            text: errorMessage,
+            showCancelButton: false,
+            cancelButtonText: 'Cancel',
+            confirmButtonText: 'Ok',
+            onConfirm: () => {},
+            onClose: () => {},
+            type: 'danger',
+          });
+        }).finally(() => {
+          setLoading(false);
+        });
+    };
+    fetchData()
+  }, []);
+
+  if (loading) {
     return (
-        <>
-            <Stack.Screen options={{ title: 'Detalhe da OS' }} />
-            <Container>
-              <View style={styles.container}>
-                <Detail dados={dados} />  
-              </View>
-            </Container>
-        </>
+      <Container>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#ff3a00" />
+          <Text>Carregando...</Text>
+        </View>
+      </Container>
     );
+  }
+
+  if (!ordemServico) {
+    return (
+      <Container>
+        <View style={styles.errorContainer}>
+          <Text>Ordem de Servico não encontrada.</Text>
+        </View>
+      </Container>
+    );
+  }
+  
+  return (
+    <>
+      <Stack.Screen options={{ title: 'Detalhe da OS' }} />
+      <Container>
+        <View style={styles.container}>
+          <Detail dados={dados} />  
+        </View>
+      </Container>
+    </>
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1
   },
- 
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  label: {
-    fontWeight: 'bold',
-    fontSize: 16,
+  loadingContainer: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  value: {
-    fontSize: 16,
-    flex: 2,
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

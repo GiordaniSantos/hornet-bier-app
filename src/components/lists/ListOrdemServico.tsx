@@ -1,66 +1,114 @@
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
+import { showSweetAlert } from '../sweetAlert';
+import api from '@/src/services/api';
+import { convertValor } from '@/src/utils/format-valor-to-real';
 
 interface OrdemServico {
-    id: string;
-    numeroOs: string;
-    status: string;
-    cliente: string;
-    valorTotal: number;
-    dataEntrada: string;
-    dataSaida: string;
+  id: number;
+  numero: string;
+  status: string;
+  valor_total: string;
+  data_entrada: string;
+  data_saida: string;
+  cliente_nome: string;
 }
 
 interface ListOrdemServicoProps {
-    ordemServico: OrdemServico;
+  ordemServico: OrdemServico;
 }
 
 export default function ListOrdemServico({ordemServico}: ListOrdemServicoProps) {
-    const getStatusStyle = (status:string) => {
-        switch (status) {
-          case 'ABERTO':
-            return styles.colorApproved;
-          case 'EM ANDAMENTO':
-            return styles.colorProgress;
-          case 'FECHADO':
-            return styles.colorClosed;
-          default:
-            return {};
-        }
-    };
+  const getStatusStyle = (status:string) => {
+    switch (status) {
+      case 'Aberto':
+        return styles.colorApproved;
+      case 'Em Andamento':
+        return styles.colorProgress;
+      case 'Fechado':
+        return styles.colorClosed;
+      case 'Não Executado':
+        return styles.colorClosed;
+      default:
+        return {};
+    }
+  };
 
-    return (
-        <View style={styles.card}>
-            <Text style={[styles.btnStatus, getStatusStyle(ordemServico.status)]}>{ordemServico.status}</Text>
-            <View style={{padding:16}}>
-                <View style={styles.header}>
-                    <View>
-                        <Text style={styles.title}>{ordemServico.numeroOs}</Text>
-                        <Text style={styles.titleCliente}>{ordemServico.cliente}</Text>
-                    </View>
-                </View>
-                <Text style={styles.item}>Valor total: R${ordemServico.valorTotal.toFixed(2)}</Text>
-                <Text style={styles.date}>
-                    Entrada em: {ordemServico.dataEntrada} | Saída: {ordemServico.dataSaida}
-                </Text>
-                <View style={styles.containerButtons}>
-                    <Link href={`/ordem-servico/edit/${ordemServico.id}`} style={styles.button} asChild>
-                        <FontAwesome5 name="edit" size={14} color={'#000'} />
-                    </Link>
-                    <Link href={`/ordem-servico/view/${ordemServico.id}`} style={styles.button} asChild>
-                        <FontAwesome5 name="eye" size={14} color={'#000'} />
-                    </Link>
-                    <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to project */}}>
-                        <FontAwesome5 name="trash" size={14} color={'#000'} />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to project */}}>
-                        <FontAwesome5 name="whatsapp" size={14} color={'#000'} />
-                    </TouchableOpacity>
-                </View>
-            </View>
+  const deleteOrdemServico = async (id:number) => {
+    try {
+      await api.delete(`/ordem-servico/${id}`)
+      showSweetAlert({
+        title: 'Sucesso!',
+        text: 'Registro deletado com sucesso!',
+        showCancelButton: false,
+        cancelButtonText: 'Não, cancelar',
+        confirmButtonText: 'Ok',
+        onConfirm: () => {},
+        onClose: () => {},
+        type: 'success',
+      });
+      router.replace("/ordem-servico")
+    } catch (e:any) {
+      const errorMessage = e.response && e.response.data && e.response.data.message ? e.response.data.message : 'Ocorreu um erro inesperado.';
+
+      showSweetAlert({
+          title: 'Erro',
+          text: errorMessage,
+          showCancelButton: false,
+          cancelButtonText: 'Cancel',
+          confirmButtonText: 'Ok',
+          onConfirm: () => {},
+          onClose: () => {},
+          type: 'danger',
+      });
+    }
+  }
+
+  return (
+    <View style={styles.card}>
+      <Text style={[styles.btnStatus, getStatusStyle(ordemServico.status)]}>{ordemServico.status}</Text>
+      <View style={{padding:16}}>
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.title}>{ordemServico.numero}</Text>
+            <Text style={styles.titleCliente}>{ordemServico.cliente_nome}</Text>
+          </View>
         </View>
-    );
+        <Text style={styles.item}>Valor total: R${convertValor(ordemServico.valor_total)}</Text>
+        <Text style={styles.date}>
+          Entrada em: {ordemServico.data_entrada ? ordemServico.data_entrada : 'N/I'} | Saída: {ordemServico.data_saida ? ordemServico.data_saida : 'N/I'}
+        </Text>
+        <View style={styles.containerButtons}>
+          <Link href={`/ordem-servico/edit/${ordemServico.id}`} style={styles.button} asChild>
+            <FontAwesome5 name="edit" size={14} color={'#000'} />
+          </Link>
+          <Link href={`/ordem-servico/view/${ordemServico.id}`} style={styles.button} asChild>
+            <FontAwesome5 name="eye" size={14} color={'#000'} />
+          </Link>
+          <TouchableOpacity style={styles.button} onPress={() => {
+            showSweetAlert({
+              title: 'Deletar Registro',
+              text: 'Você tem certeza que quer deletar este registro?',
+              showCancelButton: true,
+              cancelButtonText: 'Não, cancelar',
+              confirmButtonText: 'Sim, deletar!',
+              onConfirm: () => {
+                deleteOrdemServico(ordemServico.id)
+              },
+              onClose: () => {},
+              type: 'info',
+            });
+          }}>
+            <FontAwesome5 name="trash" size={14} color={'#000'} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to project */}}>
+            <FontAwesome5 name="whatsapp" size={14} color={'#000'} />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -118,6 +166,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     top: 0,
+    textTransform: 'uppercase'
   },
   item: {
     marginTop: 12,
