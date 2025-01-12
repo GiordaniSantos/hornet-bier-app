@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+import { View, Image, StyleSheet, ActivityIndicator } from 'react-native';
 import { FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 import { Drawer } from 'expo-router/drawer';
 import { DrawerContentScrollView, DrawerItemList, DrawerContentComponentProps, DrawerItem } from '@react-navigation/drawer';
@@ -10,6 +10,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useDispatch } from 'react-redux';
 import { AppDispatch, useAppSelector } from '@/src/store';
 import { actions, verifyUserLogged } from '@/src/store/auth/auth-slice';
+import SweetAlert from '@/src/components/sweetAlert';
 
 const DrawerContent = (props: DrawerContentComponentProps) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -17,8 +18,12 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
   const authData = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-      dispatch(verifyUserLogged());
+    dispatch(verifyUserLogged());
   }, []);
+
+  if(authData.isLoading){
+    return <ActivityIndicator size={'large'} />;
+  }
 
   if(!authData.user.id){
     return <Redirect href="/login" />;
@@ -31,6 +36,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
 
   return (
     <View style={styles.container}>
+      <SweetAlert />
       <StatusBar style="dark" />
       <View style={styles.logoContainer}>
         <Image
