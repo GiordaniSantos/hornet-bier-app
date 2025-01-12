@@ -6,8 +6,12 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { moedaApplyMask } from '@/src/utils/masks';
+import { convertValor } from '@/src/utils/format-valor-to-real';
+import api from '@/src/services/api';
+import { showSweetAlert } from '../sweetAlert';
+import { router } from 'expo-router';
 
-type Item = { id: number; piece: string; quantity: number };
+type Item = { id: number; peca_id: number | null; quantidade: string; valor_unitario: string };
 
 type formData = {
     cliente: number | undefined;
@@ -25,39 +29,59 @@ type formData = {
 }
 
 interface OrdemServico {
+    id: number;
     cliente: number | undefined;
     marca: number | undefined;
     modelo: string;
     serie: string;
-    numeroMotor: string;
+    numero_motor: string;
     problemas: undefined;
     servicos: undefined;
-    items: Item[] | undefined;
+    pecas: Item[] | undefined;
     valorMaoDeObra: string;
     dataEntrada: string;
     dataSaida: string;
     observacao: string;
 }
-  
+
+interface ResponseApi {
+    id: number;
+    nome: string;
+} 
+
+interface ResponseApiPeca {
+    id: number;
+    nome: string;
+    valor_unitario: string;
+} 
+
+interface Recursos {
+    clientes: ResponseApi[];
+    problemas: ResponseApi[];
+    pecas: ResponseApiPeca[];
+    servicos: ResponseApi[];
+    marcas: ResponseApi[];
+}
 interface FormOrdemServicoProps {
     ordemServico?: OrdemServico;
+    recursos:  Recursos
 }
 
-export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) {
-    const { control, handleSubmit, setValue, formState: { errors } } = useForm<formData>({
+export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServicoProps) {
+    const { control, handleSubmit, setValue, getValues, formState: { errors } } = useForm<formData>({
         defaultValues: {
             cliente: ordemServico?.cliente,
             marca: ordemServico?.marca,
-            modelo: ordemServico?.modelo,
-            serie: ordemServico?.serie,
-            numeroMotor: ordemServico?.numeroMotor,
+            modelo: ordemServico?.modelo || '',
+            serie: ordemServico?.serie || '',
+            numeroMotor: ordemServico?.numero_motor || '',
             problemas: ordemServico?.problemas,
             servicos: ordemServico?.servicos,
-            items: ordemServico?.items || [{ id: 0, piece: '', quantity: 0 }],
-            valorMaoDeObra: moedaApplyMask(ordemServico?.valorMaoDeObra),
-            dataEntrada: ordemServico?.dataEntrada,
-            dataSaida: ordemServico?.dataSaida,
-            observacao: ordemServico?.observacao
+            items: ordemServico?.pecas || [{ id: 0, peca_id: null, quantidade: '', valor_unitario: '0' }],
+            valorMaoDeObra: ordemServico && ordemServico.valorMaoDeObra ? convertValor(ordemServico.valorMaoDeObra) : '0',
+            dataEntrada: ordemServico?.dataEntrada || '',
+            dataSaida: ordemServico?.dataSaida || '',
+            observacao: ordemServico?.observacao || ''
         },
     })
 
@@ -74,59 +98,54 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
     const [showStart, setShowStart] = useState(false);
     const [showEnd, setShowEnd] = useState(false);
 
-    const [items, setItems] = useState([{ id: 0, piece: '', quantity: 0 }]);
-
-    const pieces = [
-        { value: 2, label: 'Compressor 1/4 - R$550,00' },
-        { value: 3, label: 'Compressor 1/3 - R$750,00' },
-        { value: 4, label: 'Compressor 1/2 - R$750,00' },
-        // Adicione mais opções conforme necessário
-    ];
+    const [items, setItems] = useState([{ id: 0, peca_id: null, quantidade: '', valor_unitario: '0' }]);
 
     useEffect(() => {
-        if (ordemServico?.items && ordemServico.items.length > 0) {
-            setItems(ordemServico.items);
+        if (ordemServico?.pecas && ordemServico.pecas.length > 0) {
+            setItems(ordemServico.pecas);
         }
      
         if (ordemServico?.dataEntrada) {
-            setStartDate(new Date(ordemServico.dataEntrada));
+            setStartDate(new Date(ordemServico.dataEntrada + 'T00:00:00'));
         }
         if (ordemServico?.dataSaida) {
-            setEndDate(new Date(ordemServico.dataSaida));
+            setEndDate(new Date(ordemServico.dataSaida + 'T00:00:00'));
         }
         
-    }, [ordemServico?.items]);
+    }, [ordemServico?.pecas]);
 
-    const clientes = [
-        { value: 2, label: 'Maniba Cervejaria' },
-        { value: 3, label: 'Dirlei ( Particular )' },
-        { value: 4, label: 'Rodrigo ( Particular )' },
-        { value: 5, label: 'Dr Chopp' },
-        { value: 6, label: 'Rothenburg Industria e Comercio de Cervejas Especiais LTDA' },
-    ]
+    const pecas = recursos.pecas.map(peca => ({
+        value: peca.id,
+        label: `${peca.nome} - R$${convertValor(peca.valor_unitario)}`,
+        valor_unitario: peca.valor_unitario
+    }))
 
-    const marcas = [
-        { value: 2, label: 'Memo' },
-        { value: 3, label: 'Gell Chopp' },
-        { value: 4, label: 'Bauer' },
-        { value: 5, label: 'TSI' },
-        { value: 6, label: 'Elts' },
-    ]
+    const clientes = recursos.clientes.map(cliente => ({
+        value: cliente.id,
+        label: cliente.nome
+    }))
 
-    const data = [
-        { label: 'Compressor', value: 1 },
-        { label: 'Bobina Solenoide', value: 2 },
-        { label: 'Protetor Térmico', value: 3 },
-        { label: 'Relé', value: 4 },
-        { label: 'Capacitador de Partida', value: 5 },
-        { label: 'Capacitor Permanente', value: 6 },
-        { label: 'Ventilador', value: 7 },
-        { label: 'Boiler', value: 8 },
-    ];
+    const marcas = recursos.marcas.map(marca => ({
+        value: marca.id,
+        label: marca.nome
+    }))
+
+    const problemas = recursos.problemas.map(problema => ({
+        value: problema.id,
+        label: problema.nome
+    }))
+
+    const servicos = recursos.servicos.map(servico => ({
+        value: servico.id,
+        label: servico.nome
+    }))
 
     const addItem = () => {
-        setItems([...items, { id: items.length + 1, piece: '', quantity: 0 }]);
-        setValue('items', [...items, { id: items.length + 1, piece: '', quantity: 0 }]);
+        const newItem = { id: items.length + 1, peca_id: null, quantidade: '', valor_unitario: '0' };
+        const updatedItems = [...items, newItem];
+        
+        setItems(updatedItems);
+        setValue('items', updatedItems);
     };
 
     const removeItem = (id : number) => {
@@ -155,8 +174,77 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
         setShowEnd(true);
     };
 
+    const createOrUpdateOrdemServico = async (data:formData, isCreate:boolean) => {
+        const url = isCreate ? `/ordem-servico` : `/ordem-servico/${ordemServico?.id}`;
+        const successMessage = isCreate ? 'Ordem de Serviço criada com sucesso!' : 'Ordem de Serviço atualizada com sucesso!';
+    
+        try {
+            if (isCreate) {
+                await api.post(url, {
+                    cliente_id: data.cliente,
+                    marca_id: data.marca,
+                    modelo: data.modelo,
+                    serie: data.serie,
+                    numero_motor: data.numeroMotor,
+                    problema_id: data.problemas,
+                    servico_id: data.servicos,
+                    pecas: data.items,
+                    valor: data.valorMaoDeObra,
+                    data_entrada: data.dataEntrada,
+                    data_saida: data.dataSaida,
+                    observacao: data.observacao
+                });
+            } else {
+                await api.put(url, {
+                    idOs: ordemServico?.id,
+                    cliente_id: data.cliente,
+                    marca_id: data.marca,
+                    modelo: data.modelo,
+                    serie: data.serie,
+                    numero_motor: data.numeroMotor,
+                    problema_id: data.problemas,
+                    servico_id: data.servicos,
+                    pecas: data.items,
+                    valor: data.valorMaoDeObra,
+                    data_entrada: data.dataEntrada,
+                    data_saida: data.dataSaida,
+                    observacao: data.observacao
+                });
+            }
+    
+            showSweetAlert({
+                title: 'Sucesso!',
+                text: successMessage,
+                showCancelButton: false,
+                cancelButtonText: 'Não, cancelar',
+                confirmButtonText: 'Ok',
+                onConfirm: () => {},
+                onClose: () => {},
+                type: 'success',
+            });
+            router.push('/ordem-servico')
+        } catch (e: any) {
+            const errorMessage = e.response && e.response.data && e.response.data.message ? e.response.data.message : 'Ocorreu um erro inesperado.';
+        
+            showSweetAlert({
+                title: 'Erro',
+                text: errorMessage,
+                showCancelButton: false,
+                cancelButtonText: 'Cancel',
+                confirmButtonText: 'Ok',
+                onConfirm: () => {},
+                onClose: () => {},
+                type: 'danger',
+            });
+        }
+    }
+
     const onSubmit = (data: formData) => {
-        console.log(data)
+        if(!ordemServico){
+          createOrUpdateOrdemServico(data, true)
+          return
+        }
+        createOrUpdateOrdemServico(data, false)
     }
 
     return (
@@ -189,35 +277,41 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
                                 <FontAwesome name="user" style={styles.icon} size={20} color="black" />
                             )}
                         />
-                        {errors.cliente && <Text style={styles.textError}>Preencha este campo!</Text>}
+                        {errors.cliente && <Text style={styles.textError}>Selecione um item da lista!</Text>}
                     </>
                 )}
                 name="cliente"
             />
             <Controller
                 control={control}
+                rules={{
+                    required: true
+                }}
                 render={({ field: { onChange, onBlur, value } }) => (
-                    <Dropdown
-                        style={[styles.picker, styles.dropdown, {marginBottom: 20}]}
-                        placeholderStyle={styles.placeholderStyle}
-                        selectedTextStyle={styles.selectedTextStyle}
-                        inputSearchStyle={styles.inputSearchStyle}
-                        iconStyle={styles.iconStyle}
-                        data={marcas}
-                        search
-                        maxHeight={300}
-                        labelField="label"
-                        valueField="value"
-                        placeholder={'Selecione a marca'}
-                        searchPlaceholder="Pesquise..."
-                        value={value}
-                        onChange={item => {
-                            onChange(item.value);
-                        }}
-                        renderLeftIcon={() => (
-                            <MaterialCommunityIcons style={styles.icon} name="office-building" size={20} color="black" />
-                        )}
-                    />
+                    <>
+                        <Dropdown
+                            style={[styles.picker, styles.dropdown, {marginBottom: 20}]}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            inputSearchStyle={styles.inputSearchStyle}
+                            iconStyle={styles.iconStyle}
+                            data={marcas}
+                            search
+                            maxHeight={300}
+                            labelField="label"
+                            valueField="value"
+                            placeholder={'Selecione a marca'}
+                            searchPlaceholder="Pesquise..."
+                            value={value}
+                            onChange={item => {
+                                onChange(item.value);
+                            }}
+                            renderLeftIcon={() => (
+                                <MaterialCommunityIcons style={styles.icon} name="office-building" size={20} color="black" />
+                            )}
+                        />
+                        {errors.marca && <Text style={styles.textError}>Selecione um item da lista!</Text>}
+                    </>
                 )}
                 name="marca"
             />
@@ -276,6 +370,9 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
             />
             <Controller
                 control={control}
+                rules={{
+                    required: true
+                }}
                 render={({ field: { onChange, onBlur, value } }) => (
                     <View style={styles.container}>
                         <MultiSelect
@@ -285,7 +382,7 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
                             inputSearchStyle={styles.inputSearchStyle}
                             iconStyle={styles.iconStyle}
                             search
-                            data={data}
+                            data={problemas}
                             labelField="label"
                             valueField="value"
                             placeholder="Problemas(s) Apresentado(s)"
@@ -300,6 +397,7 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
                             )}
                             selectedStyle={styles.selectedStyle}
                         />
+                        {errors.problemas && <Text style={styles.textError}>Selecione um item da lista!</Text>}
                     </View>
                 )}
                 name="problemas"
@@ -315,7 +413,7 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
                             inputSearchStyle={styles.inputSearchStyle}
                             iconStyle={styles.iconStyle}
                             search
-                            data={data}
+                            data={servicos}
                             labelField="label"
                             valueField="value"
                             placeholder="Serviço(s) Prestado(s)"
@@ -352,7 +450,7 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
                                             selectedTextStyle={styles.selectedTextStyle}
                                             inputSearchStyle={styles.inputSearchStyle}
                                             iconStyle={styles.iconStyle}
-                                            data={pieces}
+                                            data={pecas}
                                             search
                                             maxHeight={300}
                                             labelField="label"
@@ -362,34 +460,57 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
                                             value={value}
                                             onChange={item => {
                                                 onChange(item.value);
-                                                item.piece = item.value;
+
+                                                const updatedItems = [...items];
+                                                updatedItems[index].peca_id = item.value;
+                                                updatedItems[index].valor_unitario = item.valor_unitario;
+                                                setItems(updatedItems);
+                                                
+                                                setValue(`items[${index}].peca_id`, item.value);
+                                                setValue(`items[${index}].valor_unitario`, item.valor_unitario);
                                             }}
                                             renderLeftIcon={() => (
                                                 <MaterialCommunityIcons style={styles.icon} name="screw-flat-top" size={20} color={'black'} />
                                             )}
                                         />
                                     )}
-                                    name={`items[${index}].piece`}
-                                    defaultValue={item.piece}
+                                    name={`items[${index}].peca_id`}
+                                    defaultValue={item.peca_id}
                                 />
                                 <Controller
                                     control={control}
+                                    rules={{
+                                        validate: value => {
+                                            const pecaId = getValues(`items[${index}].peca_id`);
+                                            return pecaId ? (value ? true : 'Quantidade é obrigatória quando uma peça é selecionada.') : true;
+                                        }
+                                    }}
                                     render={({ field: { onChange, onBlur, value } }) => (
-                                        <TextInput
-                                            style={[styles.input, styles.cell, {marginBottom: 0}]}
-                                            placeholder="Digite a quantidade"
-                                            keyboardType="numeric"
-                                            onBlur={onBlur}
-                                            onChangeText={(text) => {
-                                                const intValue = parseInt(text, 10);
-                                                onChange(isNaN(intValue) ? undefined : intValue);
-                                            }}
-                                            value={value ? String(value) : ''}
-                                        />
+                                        <View style={styles.cell}>
+                                            <TextInput
+                                                style={[styles.input, {marginBottom: 0}]}
+                                                placeholder="Digite a quantidade"
+                                                keyboardType="numeric"
+                                                onBlur={onBlur}
+                                                onChangeText={(text) => {
+                                                    const intValue = parseInt(text, 10);
+                                                    onChange(isNaN(intValue) ? undefined : intValue);
+
+                                                    const updatedItems = [...items];
+                                                    updatedItems[index].quantidade = isNaN(intValue) ? '' : intValue;
+                                                    setItems(updatedItems);
+                                                }}
+                                                value={value ? String(value) : ''}
+                                            />
+                                            {errors.items && errors.items[index] && errors.items[index].quantidade && (
+                                                <Text style={{ color: 'red' }}>{errors.items[index].quantidade.message}</Text>
+                                            )}
+                                        </View>
                                     )}
-                                    name={`items[${index}].quantity`}
-                                    defaultValue={item.quantity}
+                                    name={`items[${index}].quantidade`}
+                                    defaultValue={item.quantidade}
                                 />
+                               
                             </View>
                             {index === 0 ? (
                                 ( 
@@ -410,6 +531,9 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
             </ScrollView>
              <Controller
                 control={control}
+                rules={{
+                    required: true
+                }}
                 render={({ field: { onChange, onBlur, value } }) => (
                     <>
                         <Text style={[styles.label, {width: 180}]}>Valor Mão de Obra (R$)</Text>
@@ -427,12 +551,16 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
                             }}
                             value={value ? value.toString() : ''}
                         />
+                        {errors.valorMaoDeObra && <Text style={styles.textError}>Preencha este campo!</Text>}
                     </>
                 )}
                 name="valorMaoDeObra"
             />
             <Controller
                 control={control}
+                rules={{
+                    //required: true
+                }}
                 render={({ field: { onChange, value } }) => (
                     <>
                         <Text style={[styles.label, {width: 130}]}>Data de Entrada</Text>
@@ -454,6 +582,7 @@ export default function FormOrdemServico({ordemServico}: FormOrdemServicoProps) 
                                 }}
                             />
                         )}
+                        {errors.dataEntrada && <Text style={styles.textError}>Preencha este campo!</Text>}
                     </>
                 )}
                 name="dataEntrada"
