@@ -3,10 +3,12 @@ import { StyleSheet, Image, ScrollView } from 'react-native';
 import Logo from '../../assets/images/nova-logo.png';
 import { View } from '@/src/components/Themed';
 import FormLogin from '../components/forms/FormLogin';
+import SweetAlert from '../components/sweetAlert';
 
 export default function Login() {
   return (
     <View style={styles.background}>
+        <SweetAlert />
         <StatusBar style={'light'} translucent={true} />
         <Image source={Logo} style={styles.logo} resizeMode='contain' />
         <View style={styles.formContainer}>
