@@ -18,7 +18,7 @@ export default function EditOrdemServico() {
     useEffect(() => {
         const getRecursos = async () => {
             setLoadingRecursos(true);
-            await api.get(`/ordem-servico-recursos`)
+            await api.get(`/ordem-servico-recursos?withStatus=true`)
                 .then(response => {
                     setRecursos(response.data)
                 })
@@ -90,7 +90,6 @@ export default function EditOrdemServico() {
 
     return (
         <>
-            <Stack.Screen options={{ title: 'Editar Ordem de Servico' }} />
             <Container>
                 <View style={styles.container}>
                     <ScrollView>

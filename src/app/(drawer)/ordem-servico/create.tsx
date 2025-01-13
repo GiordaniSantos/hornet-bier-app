@@ -60,7 +60,6 @@ export default function CreateOS() {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Criar Ordem de Serviço' }} />
       <Container>
         <View style={styles.container}>
           <ScrollView>

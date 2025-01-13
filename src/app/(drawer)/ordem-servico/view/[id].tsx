@@ -92,7 +92,6 @@ export default function ViewOS() {
   
   return (
     <>
-      <Stack.Screen options={{ title: 'Detalhe da OS' }} />
       <Container>
         <View style={styles.container}>
           <Detail dados={dados} />  

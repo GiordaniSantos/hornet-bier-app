@@ -4,8 +4,9 @@ export default function OSLayout() {
     return (
         <Stack>
             <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="view/[id]" options={{ title: 'Detalhe da OS' }} />
-            <Stack.Screen name="create" options={{ title: 'Criar OS' }} />
+            <Stack.Screen name="edit/[id]" options={{ title: 'Editar Ordem de Serviço' }} />
+            <Stack.Screen name="view/[id]" options={{ title: 'Detalhes da Ordem de Serviço' }} />
+            <Stack.Screen name="create" options={{ title: 'Criar Ordem de Serviço' }} />
         </Stack>
     );
 }
