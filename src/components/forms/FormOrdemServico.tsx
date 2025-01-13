@@ -26,6 +26,8 @@ type formData = {
     dataEntrada: string;
     dataSaida: string;
     observacao: string;
+    status: string;
+    valorTotal: string;
 }
 
 interface OrdemServico {
@@ -42,6 +44,13 @@ interface OrdemServico {
     dataEntrada: string;
     dataSaida: string;
     observacao: string;
+    status: string;
+    valorTotal: string;
+}
+
+interface StatusOs {
+    value: string;
+    label: string;
 }
 
 interface ResponseApi {
@@ -55,12 +64,18 @@ interface ResponseApiPeca {
     valor_unitario: string;
 } 
 
+interface ResponseApiStatus {
+    value: string;
+    descricao: string;
+} 
+
 interface Recursos {
     clientes: ResponseApi[];
     problemas: ResponseApi[];
     pecas: ResponseApiPeca[];
     servicos: ResponseApi[];
     marcas: ResponseApi[];
+    status: ResponseApiStatus[];
 }
 interface FormOrdemServicoProps {
     ordemServico?: OrdemServico;
@@ -79,8 +94,10 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
             servicos: ordemServico?.servicos,
             items: ordemServico?.pecas || [{ id: 0, peca_id: null, quantidade: '', valor_unitario: '0' }],
             valorMaoDeObra: ordemServico && ordemServico.valorMaoDeObra ? convertValor(ordemServico.valorMaoDeObra) : '0',
+            valorTotal: ordemServico && ordemServico.valorMaoDeObra ? convertValor(ordemServico.valorTotal) : '0',
             dataEntrada: ordemServico?.dataEntrada || '',
             dataSaida: ordemServico?.dataSaida || '',
+            status: ordemServico?.status,
             observacao: ordemServico?.observacao || ''
         },
     })
@@ -139,6 +156,16 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
         value: servico.id,
         label: servico.nome
     }))
+
+    let statusOs : StatusOs[] = [];
+    if(ordemServico){
+        statusOs = recursos.status.map(status => ({
+            value: status.value,
+            label: status.descricao
+        }))
+    }
+
+    const disabled = ordemServico && ordemServico.status == 'FC' ? true : false;
 
     const addItem = () => {
         const newItem = { id: items.length + 1, peca_id: null, quantidade: '', valor_unitario: '0' };
@@ -249,6 +276,41 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
 
     return (
         <>
+            {ordemServico && 
+                <Controller
+                    control={control}
+                    rules={{
+                        required: true
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <>
+                            <Dropdown
+                                style={[styles.picker, styles.dropdown, {marginBottom: 20}]}
+                                placeholderStyle={styles.placeholderStyle}
+                                selectedTextStyle={styles.selectedTextStyle}
+                                inputSearchStyle={styles.inputSearchStyle}
+                                iconStyle={styles.iconStyle}
+                                data={statusOs}
+                                search
+                                maxHeight={300}
+                                labelField="label"
+                                valueField="value"
+                                placeholder={'Selecione o status'}
+                                searchPlaceholder="Pesquise..."
+                                value={value}
+                                onChange={item => {
+                                    onChange(item.value);
+                                }}
+                                renderLeftIcon={() => (
+                                    <MaterialCommunityIcons name="list-status" style={styles.icon} size={20} color="black" />
+                                )}
+                            />
+                            {errors.status && <Text style={styles.textError}>Selecione um item da lista!</Text>}
+                        </>
+                    )}
+                    name="status"
+                />
+            }
             <Controller
                 control={control}
                 rules={{
@@ -264,6 +326,7 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                             iconStyle={styles.iconStyle}
                             data={clientes}
                             search
+                            disable={disabled}
                             maxHeight={300}
                             labelField="label"
                             valueField="value"
@@ -296,6 +359,7 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                             inputSearchStyle={styles.inputSearchStyle}
                             iconStyle={styles.iconStyle}
                             data={marcas}
+                            disable={disabled}
                             search
                             maxHeight={300}
                             labelField="label"
@@ -324,8 +388,12 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                     <>
                         <Text style={[styles.label, {width: 65}]}>Modelo</Text>
                         <TextInput
-                            style={styles.input}
                             onBlur={onBlur}
+                            style={[
+                                styles.input,
+                                { color: disabled ? '#a9a9a9' : '' }
+                            ]}
+                            editable={!disabled}
                             onChangeText={onChange}
                             value={value}
                         />
@@ -340,7 +408,11 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                     <>
                         <Text style={[styles.label, {width: 50}]}>Série</Text>
                         <TextInput
-                            style={styles.input}
+                            style={[
+                                styles.input,
+                                { color: disabled ? '#a9a9a9' : '' }
+                            ]}
+                            editable={!disabled}
                             onBlur={onBlur}
                             onChangeText={onChange}
                             value={value}
@@ -358,7 +430,11 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                     <>
                         <Text style={[styles.label, {width: 145}]}>Número do Motor</Text>
                         <TextInput
-                            style={styles.input}
+                            style={[
+                                styles.input,
+                                { color: disabled ? '#a9a9a9' : '' }
+                            ]}
+                            editable={!disabled}
                             onBlur={onBlur}
                             onChangeText={onChange}
                             value={value}
@@ -382,6 +458,7 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                             inputSearchStyle={styles.inputSearchStyle}
                             iconStyle={styles.iconStyle}
                             search
+                            disable={disabled}
                             data={problemas}
                             labelField="label"
                             valueField="value"
@@ -413,6 +490,7 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                             inputSearchStyle={styles.inputSearchStyle}
                             iconStyle={styles.iconStyle}
                             search
+                            disable={disabled}
                             data={servicos}
                             labelField="label"
                             valueField="value"
@@ -452,6 +530,7 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                                             iconStyle={styles.iconStyle}
                                             data={pecas}
                                             search
+                                            disable={disabled}
                                             maxHeight={300}
                                             labelField="label"
                                             valueField="value"
@@ -488,10 +567,15 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                                     render={({ field: { onChange, onBlur, value } }) => (
                                         <View style={styles.cell}>
                                             <TextInput
-                                                style={[styles.input, {marginBottom: 0}]}
+                                                style={[
+                                                    styles.input,
+                                                    { color: disabled ? '#a9a9a9' : '' },
+                                                    {marginBottom: 0}
+                                                ]}
                                                 placeholder="Digite a quantidade"
                                                 keyboardType="numeric"
                                                 onBlur={onBlur}
+                                                editable={!disabled}
                                                 onChangeText={(text) => {
                                                     const intValue = parseInt(text, 10);
                                                     onChange(isNaN(intValue) ? undefined : intValue);
@@ -515,13 +599,13 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                             {index === 0 ? (
                                 ( 
                                     <View style={{flex: 1, marginBottom: 20}}>
-                                        <Button title="Adicionar" color="#1cc88a" onPress={addItem} />
+                                        <Button title="Adicionar" color="#1cc88a" onPress={addItem} disabled={disabled} />
                                     </View>
                                 )
                             ) : (
                                 ( 
                                     <View style={{flex: 1, marginBottom: 20}}>
-                                        <Button title="Remover" color="#e74a3b" onPress={() => removeItem(item.id)} />
+                                        <Button title="Remover" color="#e74a3b" onPress={() => removeItem(item.id)} disabled={disabled} />
                                     </View>
                                 )
                             )}
@@ -529,7 +613,7 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                     ))}
                 </View>
             </ScrollView>
-             <Controller
+            <Controller
                 control={control}
                 rules={{
                     required: true
@@ -538,7 +622,11 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                     <>
                         <Text style={[styles.label, {width: 180}]}>Valor Mão de Obra (R$)</Text>
                         <TextInput
-                            style={styles.input}
+                            style={[
+                                styles.input,
+                                { color: disabled ? '#a9a9a9' : '' }
+                            ]}
+                            editable={!disabled}
                             onBlur={onBlur}
                             keyboardType='numeric'
                             onChangeText={text => {
@@ -556,6 +644,35 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                 )}
                 name="valorMaoDeObra"
             />
+            {ordemServico && 
+                <Controller
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <>
+                            <Text style={[styles.label, {width: 120}]}>Valor Total (R$)</Text>
+                            <TextInput
+                                style={[
+                                    styles.input,
+                                    { color: '#a9a9a9' }
+                                ]}
+                                editable={false}
+                                onBlur={onBlur}
+                                keyboardType='numeric'
+                                onChangeText={text => {
+                                    const apenasNumeros = text.replace(/\D/g, '');
+
+                                    const valorEmReais = parseFloat(apenasNumeros) / 100;
+
+                                    const valueMoeda = moedaApplyMask(valorEmReais);
+                                    onChange(valueMoeda);
+                                }}
+                                value={value ? value.toString() : ''}
+                            />
+                        </>
+                    )}
+                    name="valorTotal"
+                />
+            }
             <Controller
                 control={control}
                 rules={{
@@ -566,7 +683,10 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                         <Text style={[styles.label, {width: 130}]}>Data de Entrada</Text>
                         <TouchableOpacity onPress={showStartDatepicker}>
                             <TextInput
-                                style={styles.input}
+                                style={[
+                                    styles.input,
+                                    { color: disabled ? '#a9a9a9' : '' }
+                                ]}
                                 value={startDate.toLocaleDateString('pt-BR')}
                                 editable={false}
                             />
@@ -575,6 +695,7 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                             <DateTimePicker
                                 value={startDate}
                                 mode="date"
+                                disabled={disabled}
                                 is24Hour={true}
                                 onChange={(event, selectedDate) => {
                                     onChange(selectedDate);
@@ -595,7 +716,10 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                         <Text style={[styles.label, {width: 240}]}>Data de Saída/Previsão de Saída</Text>
                         <TouchableOpacity onPress={showEndDatepicker}>
                             <TextInput
-                                style={styles.input}
+                                style={[
+                                    styles.input,
+                                    { color: disabled ? '#a9a9a9' : '' }
+                                ]}
                                 value={endDate.toLocaleDateString('pt-BR')}
                                 editable={false}
                             />
@@ -604,6 +728,7 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                             <DateTimePicker
                                 value={endDate}
                                 mode="date"
+                                disabled={disabled}
                                 is24Hour={true}
                                 onChange={(event, selectedDate) => {
                                     onChange(selectedDate);
@@ -625,7 +750,11 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                     <>
                         <Text style={[styles.label, {width: 105}]}>Observações</Text>
                         <TextInput
-                            style={styles.input}
+                            style={[
+                                styles.input,
+                                { color: disabled ? '#a9a9a9' : '' }
+                            ]}
+                            editable={!disabled}
                             onBlur={onBlur}
                             onChangeText={onChange}
                             value={value}
