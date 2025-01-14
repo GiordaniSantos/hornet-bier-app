@@ -181,13 +181,13 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
         setValue('items', newItems);
     };
 
-    const onChangeStart = (event, selectedDate) => {
+    const onChangeStart = (selectedDate : Date | undefined) => {
         const currentDate = selectedDate || startDate;
         setShowStart(false);
         setStartDate(currentDate);
     };
 
-    const onChangeEnd = (event, selectedDate) => {
+    const onChangeEnd = (selectedDate : Date | undefined) => {
         const currentDate = selectedDate || endDate;
         setShowEnd(false);
         setEndDate(currentDate);
@@ -674,17 +674,14 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
             <Controller
                 control={control}
                 rules={{
-                    //required: true
+                    required: true
                 }}
                 render={({ field: { onChange, value } }) => (
                     <>
                         <Text style={[styles.label, {width: 130}]}>Data de Entrada</Text>
                         <TouchableOpacity onPress={showStartDatepicker}>
                             <TextInput
-                                style={[
-                                    styles.input,
-                                    { color: disabled ? '#a9a9a9' : '' }
-                                ]}
+                                style={styles.input}
                                 value={startDate.toLocaleDateString('pt-BR')}
                                 editable={false}
                             />
@@ -693,11 +690,10 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                             <DateTimePicker
                                 value={startDate}
                                 mode="date"
-                                disabled={disabled}
                                 is24Hour={true}
                                 onChange={(event, selectedDate) => {
                                     onChange(selectedDate);
-                                    onChangeStart(event, selectedDate);
+                                    onChangeStart(selectedDate);
                                 }}
                             />
                         )}
@@ -705,7 +701,7 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                     </>
                 )}
                 name="dataEntrada"
-                defaultValue={startDate}
+                defaultValue={startDate.toLocaleDateString('pt-BR')}
             />
             <Controller
                 control={control}
@@ -714,10 +710,7 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                         <Text style={[styles.label, {width: 240}]}>Data de Saída/Previsão de Saída</Text>
                         <TouchableOpacity onPress={showEndDatepicker}>
                             <TextInput
-                                style={[
-                                    styles.input,
-                                    { color: disabled ? '#a9a9a9' : '' }
-                                ]}
+                                style={styles.input}
                                 value={endDate.toLocaleDateString('pt-BR')}
                                 editable={false}
                             />
@@ -726,18 +719,17 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                             <DateTimePicker
                                 value={endDate}
                                 mode="date"
-                                disabled={disabled}
                                 is24Hour={true}
                                 onChange={(event, selectedDate) => {
                                     onChange(selectedDate);
-                                    onChangeEnd(event, selectedDate);
+                                    onChangeEnd(selectedDate);
                                 }}
                             />
                         )}
                     </>
                 )}
                 name="dataSaida"
-                defaultValue={endDate}
+                defaultValue={endDate.toLocaleDateString('pt-BR')}
             />
             <Controller
                 control={control}
