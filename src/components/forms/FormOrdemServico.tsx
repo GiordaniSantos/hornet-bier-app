@@ -102,8 +102,8 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
         },
     })
 
-    const [selectedProblema, setSelectedProblema] = useState([]);
-    const [selectedServico, setSelectedServico] = useState([]);
+    const [selectedProblema, setSelectedProblema] = useState<string[]>([]);
+    const [selectedServico, setSelectedServico] = useState<string[]>([]);
 
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(() => {
@@ -115,7 +115,7 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
     const [showStart, setShowStart] = useState(false);
     const [showEnd, setShowEnd] = useState(false);
 
-    const [items, setItems] = useState([{ id: 0, peca_id: null, quantidade: '', valor_unitario: '0' }]);
+    const [items, setItems] = useState<Item[]>([{ id: 0, peca_id: null, quantidade: '', valor_unitario: '0' }]);
 
     useEffect(() => {
         if (ordemServico?.pecas && ordemServico.pecas.length > 0) {
@@ -332,7 +332,7 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                             valueField="value"
                             placeholder={'Selecione o cliente'}
                             searchPlaceholder="Pesquise..."
-                            value={value}
+                            value={clientes.find(cliente => cliente.value === value) || null}
                             onChange={item => {
                                 onChange(item.value);
                             }}
@@ -366,7 +366,7 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                             valueField="value"
                             placeholder={'Selecione a marca'}
                             searchPlaceholder="Pesquise..."
-                            value={value}
+                            value={marcas.find(marca => marca.value === value) || null}
                             onChange={item => {
                                 onChange(item.value);
                             }}
@@ -536,7 +536,7 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                                             valueField="value"
                                             placeholder={'Selecione'}
                                             searchPlaceholder="Pesquise..."
-                                            value={value}
+                                            value={pecas.find(peca => peca.value === value) || null}
                                             onChange={item => {
                                                 onChange(item.value);
 
@@ -545,7 +545,7 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                                                 updatedItems[index].valor_unitario = item.valor_unitario;
                                                 setItems(updatedItems);
                                                 
-                                                setValue(`items[${index}].peca_id`, item.value);
+                                                setValue(`items[${index}].peca_id`,  item.value);
                                                 setValue(`items[${index}].valor_unitario`, item.valor_unitario);
                                             }}
                                             renderLeftIcon={() => (
@@ -577,11 +577,9 @@ export default function FormOrdemServico({ordemServico, recursos}: FormOrdemServ
                                                 onBlur={onBlur}
                                                 editable={!disabled}
                                                 onChangeText={(text) => {
-                                                    const intValue = parseInt(text, 10);
-                                                    onChange(isNaN(intValue) ? undefined : intValue);
-
+                                                    onChange(text);
                                                     const updatedItems = [...items];
-                                                    updatedItems[index].quantidade = isNaN(intValue) ? '' : intValue;
+                                                    updatedItems[index].quantidade = text;
                                                     setItems(updatedItems);
                                                 }}
                                                 value={value ? String(value) : ''}
