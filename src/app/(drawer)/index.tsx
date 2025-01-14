@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import api from '@/src/services/api';
 import { showSweetAlert } from '@/src/components/sweetAlert';
 import { useAppSelector } from '@/src/store';
+import { ShowAlertErroResponseApi } from '@/src/components/ShowAlertErrorResponseApi';
 
 interface ApiResponse {
     totalOrdemServicos: number;
@@ -28,18 +29,7 @@ export default function Home() {
 					setData(response.data)
 				})
 				.catch(e => {
-					const errorMessage = e.response && e.response.data && e.response.data.message ? e.response.data.message : 'Ocorreu um erro inesperado.';
-				
-					showSweetAlert({
-						title: 'Erro',
-						text: errorMessage,
-						showCancelButton: false,
-						cancelButtonText: 'Cancel',
-						confirmButtonText: 'Ok',
-						onConfirm: () => {},
-						onClose: () => {},
-						type: 'danger',
-					});
+					ShowAlertErroResponseApi(e);
 				});
         };
 		if(authData.token){

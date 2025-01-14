@@ -1,12 +1,12 @@
 import { router, Stack } from 'expo-router';
-import { StyleSheet, View, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import { StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { Container } from '@/src/components/Container';
 import { FontAwesome5 } from '@expo/vector-icons';
 import ListModel from '@/src/components/lists/ListModel';
 import { useEffect, useState } from 'react';
 import api from '@/src/services/api';
-import { showSweetAlert } from '@/src/components/sweetAlert';
 import Loading from '@/src/components/LoadingPage';
+import { ShowAlertErroResponseApi } from '@/src/components/ShowAlertErrorResponseApi';
 
 interface Servico {
   id: number;
@@ -34,17 +34,7 @@ export default function Servicos() {
         SetHasMoreData(false);
       }
     } catch (e:any) {
-      const errorMessage = e.response?.data?.message || 'Ocorreu um erro inesperado.';
-      showSweetAlert({
-        title: 'Erro',
-        text: errorMessage,
-        showCancelButton: false,
-        cancelButtonText: 'Cancel',
-        confirmButtonText: 'Ok',
-        onConfirm: () => {},
-        onClose: () => {},
-        type: 'danger',
-      });
+      ShowAlertErroResponseApi(e);
     } finally {
       setLoading(false);
     }

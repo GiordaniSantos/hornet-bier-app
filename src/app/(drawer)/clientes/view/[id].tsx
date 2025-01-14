@@ -5,8 +5,8 @@ import { useLocalSearchParams } from 'expo-router';
 import Detail from '@/src/components/details/Detail';
 import { useEffect, useState } from 'react';
 import api from '@/src/services/api';
-import { showSweetAlert } from '@/src/components/sweetAlert';
 import { formatDateTime } from '@/src/utils/format-date-time';
+import { ShowAlertErroResponseApi } from '@/src/components/ShowAlertErrorResponseApi';
 
 interface ClienteData {
   label: string;
@@ -42,18 +42,7 @@ export default function ViewOS() {
           setDados(clienteDados);
         })
         .catch(e => {
-          const errorMessage = e.response && e.response.data && e.response.data.message ? e.response.data.message : 'Ocorreu um erro inesperado.';
-          
-          showSweetAlert({
-            title: 'Erro',
-            text: errorMessage,
-            showCancelButton: false,
-            cancelButtonText: 'Cancel',
-            confirmButtonText: 'Ok',
-            onConfirm: () => {},
-            onClose: () => {},
-            type: 'danger',
-          });
+          ShowAlertErroResponseApi(e);
         }).finally(() => {
           setLoading(false);
         });
