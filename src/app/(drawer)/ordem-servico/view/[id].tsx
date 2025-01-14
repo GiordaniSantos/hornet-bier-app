@@ -1,13 +1,12 @@
-import { Stack } from 'expo-router';
-import { StyleSheet, View, Text, TouchableOpacity, Button, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, ActivityIndicator } from 'react-native';
 import { Container } from '@/src/components/Container';
 import { useLocalSearchParams } from 'expo-router';
 import Detail from '@/src/components/details/Detail';
 import { useEffect, useState } from 'react';
 import api from '@/src/services/api';
 import { formatDateTime } from '@/src/utils/format-date-time';
-import { showSweetAlert } from '@/src/components/sweetAlert';
 import { convertValor } from '@/src/utils/format-valor-to-real';
+import { ShowAlertErroResponseApi } from '@/src/components/ShowAlertErrorResponseApi';
 
 interface OrdemServicoData {
   label: string;
@@ -50,18 +49,7 @@ export default function ViewOS() {
           setDados(ordemServicoDados);
         })
         .catch(e => {
-          const errorMessage = e.response && e.response.data && e.response.data.message ? e.response.data.message : 'Ocorreu um erro inesperado.';
-          
-          showSweetAlert({
-            title: 'Erro',
-            text: errorMessage,
-            showCancelButton: false,
-            cancelButtonText: 'Cancel',
-            confirmButtonText: 'Ok',
-            onConfirm: () => {},
-            onClose: () => {},
-            type: 'danger',
-          });
+          ShowAlertErroResponseApi(e);
         }).finally(() => {
           setLoading(false);
         });

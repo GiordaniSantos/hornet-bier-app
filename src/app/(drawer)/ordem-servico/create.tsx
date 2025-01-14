@@ -1,10 +1,9 @@
-import { Stack } from 'expo-router';
 import { StyleSheet, View, ScrollView, ActivityIndicator, Text } from 'react-native';
 import { Container } from '@/src/components/Container';
 import FormOrdemServico from '@/src/components/forms/FormOrdemServico';
 import { useEffect, useState } from 'react';
 import api from '@/src/services/api';
-import { showSweetAlert } from '@/src/components/sweetAlert';
+import { ShowAlertErroResponseApi } from '@/src/components/ShowAlertErrorResponseApi';
 
 export default function CreateOS() {
   const [recursos, setRecursos] = useState(null);
@@ -18,18 +17,7 @@ export default function CreateOS() {
           setRecursos(response.data)
         })
         .catch(e => {
-          const errorMessage = e.response && e.response.data && e.response.data.message ? e.response.data.message : 'Ocorreu um erro inesperado.';
-          
-          showSweetAlert({
-            title: 'Erro',
-            text: errorMessage,
-            showCancelButton: false,
-            cancelButtonText: 'Cancel',
-            confirmButtonText: 'Ok',
-            onConfirm: () => {},
-            onClose: () => {},
-            type: 'danger',
-          });
+          ShowAlertErroResponseApi(e);
         }).finally(() => {
           setLoading(false);
         });

@@ -1,12 +1,12 @@
 import { router, Stack } from 'expo-router';
-import { StyleSheet, View, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { Container } from '@/src/components/Container';
 import { FontAwesome5 } from '@expo/vector-icons';
 import ListOrdemServico from '@/src/components/lists/ListOrdemServico';
 import { useEffect, useState } from 'react';
 import api from '@/src/services/api';
-import { showSweetAlert } from '@/src/components/sweetAlert';
 import Loading from '@/src/components/LoadingPage';
+import { ShowAlertErroResponseApi } from '@/src/components/ShowAlertErrorResponseApi';
 
 interface OrdemServico {
   id: number;
@@ -38,17 +38,7 @@ export default function Home() {
         SetHasMoreData(false);
       }
     } catch (e:any) {
-      const errorMessage = e.response?.data?.message || 'Ocorreu um erro inesperado.';
-      showSweetAlert({
-        title: 'Erro',
-        text: errorMessage,
-        showCancelButton: false,
-        cancelButtonText: 'Cancel',
-        confirmButtonText: 'Ok',
-        onConfirm: () => {},
-        onClose: () => {},
-        type: 'danger',
-      });
+      ShowAlertErroResponseApi(e);
     } finally {
       setLoading(false);
     }

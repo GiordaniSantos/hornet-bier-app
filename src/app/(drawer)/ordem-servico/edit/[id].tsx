@@ -1,11 +1,10 @@
-import { Stack } from 'expo-router';
 import { StyleSheet, View, ScrollView, ActivityIndicator, Text } from 'react-native';
 import { Container } from '@/src/components/Container';
 import FormOrdemServico from '@/src/components/forms/FormOrdemServico';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import api from '@/src/services/api';
-import { showSweetAlert } from '@/src/components/sweetAlert';
+import { ShowAlertErroResponseApi } from '@/src/components/ShowAlertErrorResponseApi';
 
 export default function EditOrdemServico() {
     const { id } = useLocalSearchParams();
@@ -25,18 +24,7 @@ export default function EditOrdemServico() {
                 setRecursos(recursosResponse.data);
                 setOrdemServico(ordemServicoResponse.data);
             } catch (e:any) {
-                const errorMessage = e.response && e.response.data && e.response.data.message ? e.response.data.message : 'Ocorreu um erro inesperado.';
-                
-                showSweetAlert({
-                    title: 'Erro',
-                    text: errorMessage,
-                    showCancelButton: false,
-                    cancelButtonText: 'Cancel',
-                    confirmButtonText: 'Ok',
-                    onConfirm: () => {},
-                    onClose: () => {},
-                    type: 'danger',
-                });
+                ShowAlertErroResponseApi(e);
             } finally {
                 setLoading(false);
             }
