@@ -12,62 +12,40 @@ export default function EditOrdemServico() {
 
     const [ordemServico, setOrdemServico] = useState(null);
     const [recursos, setRecursos] = useState(null);
-    const [loadingRecursos, setLoadingRecursos] = useState(true);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const getRecursos = async () => {
-            setLoadingRecursos(true);
-            await api.get(`/ordem-servico-recursos?withStatus=true`)
-                .then(response => {
-                    setRecursos(response.data)
-                })
-                .catch(e => {
-                    const errorMessage = e.response && e.response.data && e.response.data.message ? e.response.data.message : 'Ocorreu um erro inesperado.';
-                    
-                    showSweetAlert({
-                        title: 'Erro',
-                        text: errorMessage,
-                        showCancelButton: false,
-                        cancelButtonText: 'Cancel',
-                        confirmButtonText: 'Ok',
-                        onConfirm: () => {},
-                        onClose: () => {},
-                        type: 'danger',
-                    });
-                }).finally(() => {
-                    setLoadingRecursos(false);
-                });
-        }
-
         const fetchData = async () => {
             setLoading(true);
-            await api.get(`/ordem-servico/${id}`)
-                .then(response => {
-                    setOrdemServico(response.data)
-                })
-                .catch(e => {
-                    const errorMessage = e.response && e.response.data && e.response.data.message ? e.response.data.message : 'Ocorreu um erro inesperado.';
-                    
-                    showSweetAlert({
-                        title: 'Erro',
-                        text: errorMessage,
-                        showCancelButton: false,
-                        cancelButtonText: 'Cancel',
-                        confirmButtonText: 'Ok',
-                        onConfirm: () => {},
-                        onClose: () => {},
-                        type: 'danger',
-                    });
-                }).finally(() => {
-                    setLoading(false);
+            try {
+                const [recursosResponse, ordemServicoResponse] = await Promise.all([
+                    api.get(`/ordem-servico-recursos?withStatus=true`),
+                    api.get(`/ordem-servico/${id}`)
+                ]);
+                setRecursos(recursosResponse.data);
+                setOrdemServico(ordemServicoResponse.data);
+            } catch (e:any) {
+                const errorMessage = e.response && e.response.data && e.response.data.message ? e.response.data.message : 'Ocorreu um erro inesperado.';
+                
+                showSweetAlert({
+                    title: 'Erro',
+                    text: errorMessage,
+                    showCancelButton: false,
+                    cancelButtonText: 'Cancel',
+                    confirmButtonText: 'Ok',
+                    onConfirm: () => {},
+                    onClose: () => {},
+                    type: 'danger',
                 });
+            } finally {
+                setLoading(false);
+            }
         };
-        getRecursos()
-        fetchData()
-    }, []);
 
-    if (loadingRecursos && loading) {
+        fetchData();
+    }, [id]);
+
+    if (loading) {
         return (
             <Container>
                 <View style={styles.loadingContainer}>
