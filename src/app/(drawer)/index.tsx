@@ -1,11 +1,10 @@
 import { Stack } from 'expo-router';
-import { StyleSheet, View, Text, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TextInput } from 'react-native';
 import { Container } from '@/src/components/Container';
 import Icon from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { useEffect, useState } from 'react';
 import api from '@/src/services/api';
-import { showSweetAlert } from '@/src/components/sweetAlert';
 import { useAppSelector } from '@/src/store';
 import { ShowAlertErroResponseApi } from '@/src/components/ShowAlertErrorResponseApi';
 
@@ -21,10 +20,11 @@ interface ApiResponse {
 export default function Home() {
 	const authData = useAppSelector((state) => state.auth);
 	const [data, setData] = useState<ApiResponse | null>(null);
+	const [ano, setAno] = useState<number>(new Date().getFullYear());
 
 	useEffect(() => {
         const fetchData = async () => {
-			await api.get(`/relatorio`)
+			await api.get(`/relatorio?ano=${ano}`)
 				.then(response => {
 					setData(response.data)
 				})
@@ -35,7 +35,7 @@ export default function Home() {
 		if(authData.token){
 			fetchData();
 		}
-    }, [authData.token]);
+    }, [authData.token, ano]);
 
 	return (
 		<>
@@ -43,6 +43,18 @@ export default function Home() {
 			<Container>
 				<ScrollView>
 					<View style={styles.container}>
+						<TextInput
+							style={styles.input}
+							value={ano.toString()}
+							onChangeText={(text) => {
+								const newYear = parseInt(text, 10);
+								if (!isNaN(newYear)) {
+									setAno(newYear);
+								}
+							}}
+							placeholder="Digite o ano"
+							keyboardType="numeric"
+						/>
 						<View style={styles.rowCards}>
 							<View style={[styles.card, styles.elevation]}>
 								<View style={styles.cardBody}>
@@ -202,4 +214,14 @@ const styles = StyleSheet.create({
         fontWeight: '900',
         fontSize: 32
     },
+	input: {
+		height: 50,
+		borderColor: '#ccc',
+		borderRadius: 5,
+		borderWidth: 1,
+		paddingHorizontal: 10,
+		paddingVertical: 10,
+		margin: 10,
+		backgroundColor: '#fff'
+	},
 });
