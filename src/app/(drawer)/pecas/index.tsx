@@ -1,5 +1,5 @@
 import { router, Stack } from 'expo-router';
-import { StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, TouchableOpacity, FlatList, TextInput } from 'react-native';
 import { Container } from '@/src/components/Container';
 import { FontAwesome5 } from '@expo/vector-icons';
 import ListPeca from '@/src/components/lists/ListPeca';
@@ -18,21 +18,22 @@ interface Peca {
 export default function Pecas() {
   const [data, setData] = useState<Peca[]>([]);
   const [page, setPage] = useState(1);
-  const [hasMoreData, SetHasMoreData] = useState(true);
+  const [hasMoreData, setHasMoreData] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
 	const fetchData = async () => {
-    if (!hasMoreData || loading) return;
+    if(!hasMoreData) return
     setLoading(true);
     try {
-      const response = await api.get(`/peca?page=${page}`);
-      const current = response.data.data;
-      setData(prev => [...prev, ...current]);
+      const response = await api.get(`/peca?page=${page}&termo=${searchTerm}`);
+
+      setData([...data, ...response.data.data]);
       
       if(response.data.next_page_url){
-        setPage(prev => prev + 1);
+        setPage(page + 1);
       }else{
-        SetHasMoreData(false);
+        setHasMoreData(false);
       }
     } catch (e:any) {
       ShowAlertErroResponseApi(e);
@@ -41,14 +42,27 @@ export default function Pecas() {
     }
   };
 
+  const filterData = async (text : string) => {
+    setSearchTerm(text);
+    setData([]);
+    setPage(1);
+    setHasMoreData(true);
+  }
+
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [searchTerm]);
 
   return (
     <>
       <Stack.Screen options={{ title: 'Pecas' }} />
       <Container>
+        <TextInput
+          placeholder="Buscar peças..."
+          value={searchTerm}
+          onChangeText={text => filterData(text)}
+          style={styles.input}
+        />
         <FlatList
           data={data}
           renderItem={({ item }) => <ListPeca peca={item} />}
@@ -56,7 +70,7 @@ export default function Pecas() {
           onEndReached={fetchData}
           onEndReachedThreshold={0.1}
           ListFooterComponent={
-            <Loading loading={hasMoreData} />
+            <Loading loading={loading} />
           }
         />
         <TouchableOpacity style={styles.addButton} onPress={() => {router.push("/pecas/create")}} activeOpacity={0.7}>
@@ -79,4 +93,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  input: {
+		height: 50,
+		borderColor: '#ccc',
+		borderRadius: 5,
+		borderWidth: 1,
+		paddingHorizontal: 10,
+		paddingVertical: 10,
+		margin: 10,
+		backgroundColor: '#fff'
+	},
 });
