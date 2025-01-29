@@ -1,5 +1,5 @@
 import { router, Stack } from 'expo-router';
-import { StyleSheet, TouchableOpacity, FlatList, TextInput } from 'react-native';
+import { StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { Container } from '@/src/components/Container';
 import { FontAwesome5 } from '@expo/vector-icons';
 import ListPeca from '@/src/components/lists/ListPeca';
@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react';
 import api from '@/src/services/api';
 import Loading from '@/src/components/LoadingPage';
 import { ShowAlertErroResponseApi } from '@/src/components/ShowAlertErrorResponseApi';
+import SearchBar from '@/src/components/SearchBar';
+import { Controller, useForm } from 'react-hook-form';
 
 interface Peca {
   id: number;
@@ -16,13 +18,13 @@ interface Peca {
 }
 
 export default function Pecas() {
+  const { control, handleSubmit, reset, watch } = useForm();
   const [data, setData] = useState<Peca[]>([]);
   const [page, setPage] = useState(1);
   const [hasMoreData, setHasMoreData] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
 
-	const fetchData = async () => {
+	const fetchData = async (searchTerm = '') => {
     if(!hasMoreData) return
     setLoading(true);
     try {
@@ -42,32 +44,52 @@ export default function Pecas() {
     }
   };
 
-  const filterData = async (text : string) => {
-    setSearchTerm(text);
+  const onSubmit = (data: { searchTerm: string }) => {
+    const { searchTerm } = data;
     setData([]);
     setPage(1);
     setHasMoreData(true);
-  }
+    fetchData(searchTerm);
+  };
+
+  const clearFilter = () => {
+    reset();
+    setData([]);
+    setPage(1);
+    setHasMoreData(true);
+    fetchData();
+  };
 
   useEffect(() => {
-    fetchData();
-  }, [searchTerm]);
+    fetchData('');
+  }, []);
+
+  const searchTermAtual = watch('searchTerm');
 
   return (
     <>
       <Stack.Screen options={{ title: 'Pecas' }} />
       <Container>
-        <TextInput
-          placeholder="Buscar peças..."
-          value={searchTerm}
-          onChangeText={text => filterData(text)}
-          style={styles.input}
+        <Controller
+          control={control}
+          name="searchTerm"
+          defaultValue=""
+          render={({ field: { onChange, onBlur, value } }) => (
+            <SearchBar
+              onChange={onChange}
+              onBlur={onBlur}
+              onSubmit={onSubmit}
+              value={value}
+              handleSubmit={handleSubmit}
+              clearFilter={clearFilter}
+            />
+          )}
         />
         <FlatList
           data={data}
           renderItem={({ item }) => <ListPeca peca={item} />}
           keyExtractor={item => item.id.toString()}
-          onEndReached={fetchData}
+          onEndReached={() => fetchData(searchTermAtual)}
           onEndReachedThreshold={0.1}
           ListFooterComponent={
             <Loading loading={loading} />

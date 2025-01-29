@@ -1,5 +1,5 @@
 import { router, Stack } from 'expo-router';
-import { StyleSheet, TouchableOpacity, FlatList, TextInput } from 'react-native';
+import { StyleSheet, TouchableOpacity, FlatList, TextInput, Text } from 'react-native';
 import { Container } from '@/src/components/Container';
 import { FontAwesome5 } from '@expo/vector-icons';
 import ListModel from '@/src/components/lists/ListModel';
@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react';
 import api from '@/src/services/api';
 import Loading from '@/src/components/LoadingPage';
 import { ShowAlertErroResponseApi } from '@/src/components/ShowAlertErrorResponseApi';
+import { Controller, useForm } from 'react-hook-form';
+import SearchBar from '@/src/components/SearchBar';
 
 interface Problema {
   id: number;
@@ -19,9 +21,9 @@ export default function Problemas() {
   const [page, setPage] = useState(1);
   const [hasMoreData, setHasMoreData] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const { control, handleSubmit, watch, reset } = useForm();
 
-  const fetchData = async () => {
+  const fetchData = async (searchTerm = '') => {
     if(!hasMoreData) return
     setLoading(true);
     try {
@@ -41,32 +43,52 @@ export default function Problemas() {
     }
   };
 
-  const filterData = async (text : string) => {
-    setSearchTerm(text);
+  const onSubmit = (data: { searchTerm: string }) => {
+    const { searchTerm } = data;
     setData([]);
     setPage(1);
     setHasMoreData(true);
-  }
+    fetchData(searchTerm);
+  };
+
+  const clearFilter = () => {
+    reset();
+    setData([]);
+    setPage(1);
+    setHasMoreData(true);
+    fetchData();
+  };
 
   useEffect(() => {
-    fetchData();
-  }, [searchTerm]);
+    fetchData('');
+  }, []);
+
+  const searchTermAtual = watch('searchTerm');
 
   return (
     <>
       <Stack.Screen options={{ title: 'Problemas' }} />
       <Container>
-        <TextInput
-          placeholder="Buscar peças..."
-          value={searchTerm}
-          onChangeText={text => filterData(text)}
-          style={styles.input}
+        <Controller
+          control={control}
+          name="searchTerm"
+          defaultValue=""
+          render={({ field: { onChange, onBlur, value } }) => (
+            <SearchBar
+              onChange={onChange} 
+              onBlur={onBlur}
+              onSubmit={onSubmit}
+              value={value}
+              handleSubmit={handleSubmit}
+              clearFilter={clearFilter}
+            />
+          )}
         />
         <FlatList
           data={data}
           renderItem={({ item }) => <ListModel model={item} path={'problemas'} url={'problema'} />}
           keyExtractor={item => item.id.toString()}
-          onEndReached={fetchData}
+         onEndReached={() => fetchData(searchTermAtual)}
           onEndReachedThreshold={0.1}
           ListFooterComponent={
             <Loading loading={loading} />

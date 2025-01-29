@@ -7,6 +7,7 @@ export default function OSLayout() {
             <Stack.Screen name="edit/[id]" options={{ title: 'Editar Ordem de Serviço' }} />
             <Stack.Screen name="view/[id]" options={{ title: 'Detalhes da Ordem de Serviço' }} />
             <Stack.Screen name="create" options={{ title: 'Criar Ordem de Serviço' }} />
+            <Stack.Screen name="select" options={{ title: 'Selecione' }} />
         </Stack>
     );
 }

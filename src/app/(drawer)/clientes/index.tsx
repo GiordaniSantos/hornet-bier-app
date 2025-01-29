@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react';
 import api from '@/src/services/api';
 import Loading from '@/src/components/LoadingPage';
 import { ShowAlertErroResponseApi } from '@/src/components/ShowAlertErrorResponseApi';
+import { Controller, useForm } from 'react-hook-form';
+import SearchBar from '@/src/components/SearchBar';
 
 interface Cliente {
   id: number;
@@ -18,21 +20,22 @@ interface Cliente {
 export default function Clientes() {
   const [data, setData] = useState<Cliente[]>([]);
   const [page, setPage] = useState(1);
-  const [hasMoreData, SetHasMoreData] = useState(true);
+  const [hasMoreData, setHasMoreData] = useState(true);
   const [loading, setLoading] = useState(false);
+  const { control, handleSubmit, watch, reset } = useForm();
 
-	const fetchData = async () => {
-    if (!hasMoreData || loading) return;
+	const fetchData = async (searchTerm = '') => {
+    if(!hasMoreData) return
     setLoading(true);
     try {
-      const response = await api.get(`/cliente?page=${page}`);
-      const current = response.data.data;
-      setData(prev => [...prev, ...current]);
+      const response = await api.get(`/cliente?page=${page}&termo=${searchTerm}`);
+
+      setData([...data, ...response.data.data]);
       
       if(response.data.next_page_url){
-        setPage(prev => prev + 1);
+        setPage(page + 1);
       }else{
-        SetHasMoreData(false);
+        setHasMoreData(false);
       }
     } catch (e:any) {
       ShowAlertErroResponseApi(e);
@@ -41,19 +44,52 @@ export default function Clientes() {
     }
   };
 
-  useEffect(() => {
+  const onSubmit = (data: { searchTerm: string }) => {
+    const { searchTerm } = data;
+    setData([]);
+    setPage(1);
+    setHasMoreData(true);
+    fetchData(searchTerm);
+  };
+
+  const clearFilter = () => {
+    reset();
+    setData([]);
+    setPage(1);
+    setHasMoreData(true);
     fetchData();
+  };
+
+  useEffect(() => {
+    fetchData('');
   }, []);
+
+  const searchTermAtual = watch('searchTerm');
 
   return (
     <>
       <Stack.Screen options={{ title: 'Clientes' }} />
       <Container>
+        <Controller
+          control={control}
+          name="searchTerm"
+          defaultValue=""
+          render={({ field: { onChange, onBlur, value } }) => (
+            <SearchBar
+              onChange={onChange} 
+              onBlur={onBlur}
+              onSubmit={onSubmit}
+              value={value}
+              handleSubmit={handleSubmit}
+              clearFilter={clearFilter}
+            />
+          )}
+        />
         <FlatList
           data={data}
           renderItem={({ item }) => <ListCliente cliente={item} />}
           keyExtractor={item => item.id.toString()}
-          onEndReached={fetchData}
+          onEndReached={() => fetchData(searchTermAtual)}
           onEndReachedThreshold={0.1}
           ListFooterComponent={
             <Loading loading={hasMoreData} />

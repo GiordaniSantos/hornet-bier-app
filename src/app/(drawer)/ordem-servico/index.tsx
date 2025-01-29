@@ -1,7 +1,7 @@
 import { router, Stack } from 'expo-router';
 import { StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { Container } from '@/src/components/Container';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { FontAwesome5, AntDesign } from '@expo/vector-icons';
 import ListOrdemServico from '@/src/components/lists/ListOrdemServico';
 import { useEffect, useState } from 'react';
 import api from '@/src/services/api';
@@ -62,6 +62,9 @@ export default function Home() {
             <Loading loading={hasMoreData} />
           }
         />
+        <TouchableOpacity style={styles.selectButton} onPress={() => {router.push("/ordem-servico/select")}} activeOpacity={0.7}>
+          <AntDesign name="select1" size={20} color={'#FFF'} />
+        </TouchableOpacity>
         <TouchableOpacity style={styles.addButton} onPress={() => {router.push("/ordem-servico/create")}} activeOpacity={0.7}>
           <FontAwesome5 name="plus" size={20} color={'#FFF'} />
         </TouchableOpacity>
@@ -71,6 +74,17 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
+  selectButton: {
+    position: 'absolute',
+    right: 15,
+    bottom: 100,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   addButton: {
     position: 'absolute',
     right: 15,
