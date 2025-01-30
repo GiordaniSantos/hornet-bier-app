@@ -92,7 +92,7 @@ export default function Clientes() {
           onEndReached={() => fetchData(searchTermAtual)}
           onEndReachedThreshold={0.1}
           ListFooterComponent={
-            <Loading loading={hasMoreData} />
+            <Loading loading={loading} />
           }
         />
         <TouchableOpacity style={styles.addButton} onPress={() => {router.push("/clientes/create")}} activeOpacity={0.7}>
