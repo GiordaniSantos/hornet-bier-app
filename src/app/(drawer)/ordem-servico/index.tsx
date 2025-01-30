@@ -107,7 +107,7 @@ export default function Home() {
       <Stack.Screen options={{ title: 'Home' }} />
       <Container>
         <Dropdown
-          style={[styles.picker, styles.dropdown, {marginBottom: 5}]}
+          style={[styles.picker, styles.dropdown, {marginBottom: -5}]}
           placeholderStyle={styles.placeholderStyle}
           selectedTextStyle={styles.selectedTextStyle}
           inputSearchStyle={styles.inputSearchStyle}
@@ -128,7 +128,7 @@ export default function Home() {
           )}
         />
         <Dropdown
-          style={[styles.picker, styles.dropdown, {marginBottom: 20}]}
+          style={[styles.picker, styles.dropdown, {marginBottom: 10}]}
           placeholderStyle={styles.placeholderStyle}
           selectedTextStyle={styles.selectedTextStyle}
           inputSearchStyle={styles.inputSearchStyle}
@@ -193,10 +193,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   picker: {
-    height: 50,
+    height: 45,
   },
   dropdown: {
-    height: 50,
+    height: 45,
     backgroundColor: '#fff',
     marginLeft: 10,
     marginRight: 10,
