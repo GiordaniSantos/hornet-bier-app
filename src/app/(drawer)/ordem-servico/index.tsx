@@ -1,12 +1,13 @@
 import { router, Stack } from 'expo-router';
 import { StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { Container } from '@/src/components/Container';
-import { FontAwesome5, AntDesign } from '@expo/vector-icons';
+import { FontAwesome5, AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import ListOrdemServico from '@/src/components/lists/ListOrdemServico';
 import { useEffect, useState } from 'react';
 import api from '@/src/services/api';
 import Loading from '@/src/components/LoadingPage';
 import { ShowAlertErroResponseApi } from '@/src/components/ShowAlertErrorResponseApi';
+import { Dropdown } from 'react-native-element-dropdown';
 
 interface OrdemServico {
   id: number;
@@ -18,24 +19,59 @@ interface OrdemServico {
   cliente_nome: string;
 }
 
+interface Cliente {
+  id: number;
+  nome: string;
+}
+
+interface Status {
+  value: string;
+  descricao: string;
+}
+
 export default function Home() {
   const [data, setData] = useState<OrdemServico[]>([]);
   const [page, setPage] = useState(1);
-  const [hasMoreData, SetHasMoreData] = useState(true);
+  const [hasMoreData, setHasMoreData] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [clientes, setClientes] = useState<{ value: number; label: string }[]>([]);
+  const [clienteId, setClienteId] = useState<number | null>(null);    
+  const [status, setStatus] = useState<{ value: number; label: string }[]>([]);    
+  const [statusSelected, setStatusSelected] = useState<string | null>('');
+
+  const fetchRecursosFiltro = async () => {
+    try {
+      const response = await api.get(`/ordem-servico-recursos-filtro`);
+      const clientesFormatados = response.data.clientes.map((cliente: Cliente) => ({
+        value: cliente.id,
+        label: cliente.nome
+      }));
+      clientesFormatados.unshift({ value: null, label: 'Selecione um cliente' });
+      setClientes(clientesFormatados);
+
+      const statusFormatados = response.data.status.map((status: Status) => ({
+        value: status.value,
+        label: status.descricao
+      }));
+      statusFormatados.unshift({ value: null, label: 'Selecione um status' });
+      setStatus(statusFormatados);
+    } catch (e:any) {
+        ShowAlertErroResponseApi(e);
+    }
+  }
 
 	const fetchData = async () => {
-    if (!hasMoreData || loading) return;
+    if (!hasMoreData) return;
     setLoading(true);
     try {
-      const response = await api.get(`/ordem-servico?page=${page}`);
-      const current = response.data.data;
-      setData(prev => [...prev, ...current]);
+      const response = await api.get(`/ordem-servico?page=${page}&cliente_id=${clienteId}&status=${statusSelected}`);
+
+      setData([...data, ...response.data.data]);
       
       if(response.data.next_page_url){
-        setPage(prev => prev + 1);
+        setPage(page + 1);
       }else{
-        SetHasMoreData(false);
+        setHasMoreData(false);
       }
     } catch (e:any) {
       ShowAlertErroResponseApi(e);
@@ -44,14 +80,74 @@ export default function Home() {
     }
   };
 
+  const filterDataCliente = async (value : number) => {
+    setClienteId(value)
+    setData([]);
+    setPage(1);
+    setHasMoreData(true);
+  };
+
+  const filterDataStatus = async (value : string) => {
+    setStatusSelected(value)
+    setData([]);
+    setPage(1);
+    setHasMoreData(true);
+  };
+
+  useEffect(() => {
+    fetchRecursosFiltro();
+  }, []);
+
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [clienteId, statusSelected])
 
   return (
     <>
       <Stack.Screen options={{ title: 'Home' }} />
       <Container>
+        <Dropdown
+          style={[styles.picker, styles.dropdown, {marginBottom: 5}]}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          inputSearchStyle={styles.inputSearchStyle}
+          iconStyle={styles.iconStyle}
+          data={clientes}
+          search
+          maxHeight={300}
+          labelField="label"
+          valueField="value"
+          placeholder={'Selecione o cliente'}
+          searchPlaceholder="Pesquise..."
+          value={clientes.find(cliente => cliente.value === clienteId) || null}
+          onChange={item => {
+            filterDataCliente(item.value);
+          }}
+          renderLeftIcon={() => (
+              <FontAwesome5 name="user" style={styles.icon} size={20} color="black" />
+          )}
+        />
+        <Dropdown
+          style={[styles.picker, styles.dropdown, {marginBottom: 20}]}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          inputSearchStyle={styles.inputSearchStyle}
+          iconStyle={styles.iconStyle}
+          data={status}
+          search
+          maxHeight={300}
+          labelField="label"
+          valueField="value"
+          placeholder={'Selecione o status'}
+          searchPlaceholder="Pesquise..."
+          value={statusSelected}
+          onChange={item => {
+            filterDataStatus(String(item.value));
+          }}
+          renderLeftIcon={() => (
+              <MaterialCommunityIcons name="list-status" style={styles.icon} size={20} color="black" />
+          )}
+        />
         <FlatList
           data={data}
           renderItem={({ item }) => <ListOrdemServico ordemServico={item} />}
@@ -59,7 +155,7 @@ export default function Home() {
           onEndReached={fetchData}
           onEndReachedThreshold={0.1}
           ListFooterComponent={
-            <Loading loading={hasMoreData} />
+            <Loading loading={loading} />
           }
         />
         <TouchableOpacity style={styles.selectButton} onPress={() => {router.push("/ordem-servico/select")}} activeOpacity={0.7}>
@@ -95,5 +191,36 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  picker: {
+    height: 50,
+  },
+  dropdown: {
+    height: 50,
+    backgroundColor: '#fff',
+    marginLeft: 10,
+    marginRight: 10,
+    marginTop: 15,
+    borderColor: 'gray',
+    borderWidth: 0.5,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+  },
+  icon: {
+    marginRight: 10,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
   },
 });

@@ -73,11 +73,10 @@ export default function Select() {
     };
 
     useEffect(() => {
-        
+        fetchClientes();
     }, []);
 
     useEffect(() => {
-        fetchClientes();
         fetchData();
     }, [clienteId]);
 
