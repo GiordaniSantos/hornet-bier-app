@@ -1,9 +1,10 @@
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Linking } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Link, router } from 'expo-router';
 import { showSweetAlert } from '../sweetAlert';
 import api from '@/src/services/api';
 import { convertValor } from '@/src/utils/format-valor-to-real';
+import { ShowAlertErroResponseApi } from '../ShowAlertErrorResponseApi';
 
 interface OrdemServico {
   id: number;
@@ -65,6 +66,19 @@ export default function ListOrdemServico({ordemServico}: ListOrdemServicoProps) 
     }
   }
 
+  const enviarOrcamentoWhatsapp = async (id : number) => {
+    try {
+      const response = await api.get(`/ordem-servico/get-url-orcamento-whatsapp/${id}`);
+      const url = response.data;
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      }
+    } catch (e:any) {
+      ShowAlertErroResponseApi(e);
+    }
+  };
+
   return (
     <View style={styles.card}>
       <Text style={[styles.btnStatus, getStatusStyle(ordemServico.status)]}>{ordemServico.status}</Text>
@@ -102,7 +116,7 @@ export default function ListOrdemServico({ordemServico}: ListOrdemServicoProps) 
           }}>
             <FontAwesome5 name="trash" size={14} color={'#000'} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to project */}}>
+          <TouchableOpacity style={styles.button} onPress={() => {enviarOrcamentoWhatsapp(ordemServico.id)}}>
             <FontAwesome5 name="whatsapp" size={14} color={'#000'} />
           </TouchableOpacity>
         </View>
