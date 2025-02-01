@@ -1,8 +1,7 @@
-import { router, Stack } from 'expo-router';
-import { StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, FlatList, TouchableOpacity, Linking } from 'react-native';
 import { Container } from '@/src/components/Container';
 import { FontAwesome5 } from '@expo/vector-icons';
-import ListOrdemServico from '@/src/components/lists/ListOrdemServico';
+import ListOrdemServicoSelect from '@/src/components/lists/ListOrdemServicoSelect';
 import { useEffect, useState } from 'react';
 import api from '@/src/services/api';
 import Loading from '@/src/components/LoadingPage';
@@ -31,6 +30,7 @@ export default function Select() {
     const [loading, setLoading] = useState(false);
     const [hasMoreData, setHasMoreData] = useState(true);
     const [clienteId, setClienteId] = useState<number | null>(null);
+    const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
     const fetchClientes = async () => {
         try {
@@ -62,6 +62,19 @@ export default function Select() {
           ShowAlertErroResponseApi(e);
         } finally {
           setLoading(false);
+        }
+    };
+
+    const enviarOrcamentosWhatsapp = async (ids : number[]) => {
+        try {
+            const response = await api.post(`/ordem-servico/get-url-multiplo-orcamento-whatsapp`, {ids: ids});
+            const url = response.data.url;
+            const supported = await Linking.canOpenURL(url);
+            if (supported) {
+                await Linking.openURL(url);
+            }
+        } catch (e:any) {
+            ShowAlertErroResponseApi(e);
         }
     };
 
@@ -106,7 +119,7 @@ export default function Select() {
                 />
                 <FlatList
                     data={data}
-                    renderItem={({ item }) => <ListOrdemServico ordemServico={item} />}
+                    renderItem={({ item }) => <ListOrdemServicoSelect ordemServico={item} selectedIds={selectedIds} setSelectedIds={setSelectedIds} />}
                     keyExtractor={item => item.id.toString()}
                     onEndReached={fetchData}
                     onEndReachedThreshold={0.1}
@@ -114,6 +127,11 @@ export default function Select() {
                         <Loading loading={loading} />
                     }
                 />
+                {selectedIds.length >= 1 && 
+                    <TouchableOpacity style={styles.addButton} onPress={() => {enviarOrcamentosWhatsapp(selectedIds)}} activeOpacity={0.7}>
+                        <FontAwesome5 name="whatsapp" size={20} color={'#FFF'} />
+                    </TouchableOpacity>
+                }
             </Container>
         </>
     );
