@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import api from '@/src/services/api';
 import { useAppSelector } from '@/src/store';
 import { ShowAlertErroResponseApi } from '@/src/components/ShowAlertErrorResponseApi';
+import * as SplashScreen from 'expo-splash-screen';
 
 interface ApiResponse {
     totalOrdemServicos: number;
@@ -23,6 +24,11 @@ export default function Home() {
 	const [ano, setAno] = useState<number>(new Date().getFullYear());
 
 	useEffect(() => {
+		const hideSplashScreen = async () => {
+			await SplashScreen.preventAutoHideAsync();
+			await SplashScreen.hideAsync();
+		};
+		
         const fetchData = async () => {
 			await api.get(`/relatorio?ano=${ano}`)
 				.then(response => {
@@ -35,6 +41,8 @@ export default function Home() {
 		if(authData.token){
 			fetchData();
 		}
+
+		hideSplashScreen();
     }, [authData.token, ano]);
 
 	return (

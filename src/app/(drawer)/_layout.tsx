@@ -11,6 +11,9 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch, useAppSelector } from '@/src/store';
 import { actions, verifyUserLogged } from '@/src/store/auth/auth-slice';
 import SweetAlert from '@/src/components/sweetAlert';
+import * as SplashScreen from 'expo-splash-screen';
+
+SplashScreen.preventAutoHideAsync();
 
 const DrawerContent = (props: DrawerContentComponentProps) => {
   const dispatch = useDispatch<AppDispatch>();
