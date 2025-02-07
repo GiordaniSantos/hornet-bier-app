@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { View, Image, StyleSheet, ActivityIndicator } from 'react-native';
 import { FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 import { Drawer } from 'expo-router/drawer';
 import { DrawerContentScrollView, DrawerItemList, DrawerContentComponentProps, DrawerItem } from '@react-navigation/drawer';
-import { Link, Redirect, router } from 'expo-router';
-import { HeaderButton } from '../../components/HeaderButton';
+import { Redirect, router } from 'expo-router';
 import Logo from '../../../assets/images/nova-logo.png';
 import { StatusBar } from 'expo-status-bar';
 import { useDispatch } from 'react-redux';
@@ -72,11 +71,6 @@ const DrawerLayout = () => (
       drawerStyle: {
         backgroundColor: '#000'
       },
-      headerRight: () => (
-        <Link href="/modal" asChild>
-          <HeaderButton />
-        </Link>
-      ),
     }}
     drawerContent={(props) => 
       <DrawerContent {...props} />
