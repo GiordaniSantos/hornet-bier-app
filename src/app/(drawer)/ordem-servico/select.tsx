@@ -7,6 +7,7 @@ import api from '@/src/services/api';
 import Loading from '@/src/components/LoadingPage';
 import { Dropdown } from 'react-native-element-dropdown';
 import { ShowAlertErroResponseApi } from '@/src/components/ShowAlertErrorResponseApi';
+import ModalTaxaPagamento from '@/src/components/ModalTaxaPagamento';
 
 interface OrdemServico {
     id: number;
@@ -24,6 +25,7 @@ interface Cliente {
 }
 
 export default function Select() {
+    const [modalVisible, setModalVisible] = useState(false);
     const [data, setData] = useState<OrdemServico[]>([]);
     const [clientes, setClientes] = useState<{ value: number; label: string }[]>([]);    
     const [page, setPage] = useState(1);
@@ -78,6 +80,23 @@ export default function Select() {
         }
     };
 
+    const enviarLinkPagamentoOrcamentosWhatsapp = async (ids : number[], taxa : number) => {
+        try {
+            const response = await api.post(`/pagamento/get-link-multiplo-pagamento-whatsapp?taxa=${taxa}`, {ids: ids});
+            const url = response.data.url;
+            const supported = await Linking.canOpenURL(url);
+            if (supported) {
+                await Linking.openURL(url);
+            }
+        } catch (e:any) {
+            ShowAlertErroResponseApi(e);
+        }
+    };
+
+    const handleConfirmLinkPagamento = (taxaSelecionada:number) => {
+        enviarLinkPagamentoOrcamentosWhatsapp(selectedIds, taxaSelecionada);
+    };
+
     const filterData = async (value : number) => {
         setClienteId(value)
         setData([]);
@@ -130,7 +149,7 @@ export default function Select() {
                 {selectedIds.length >= 1 && 
                     (
                         <>
-                            <TouchableOpacity style={styles.paymentButton} onPress={() => {enviarOrcamentosWhatsapp(selectedIds)}} activeOpacity={0.7}>
+                            <TouchableOpacity style={styles.paymentButton} onPress={() => {setModalVisible(true)}} activeOpacity={0.7}>
                                 <MaterialIcons name="attach-money" size={20} color={'#FFF'} />
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.whatsappButton} onPress={() => {enviarOrcamentosWhatsapp(selectedIds)}} activeOpacity={0.7}>
@@ -139,6 +158,11 @@ export default function Select() {
                         </>
                     )
                 }
+                <ModalTaxaPagamento
+                    visible={modalVisible}
+                    onClose={() => setModalVisible(false)}
+                    onConfirm={handleConfirmLinkPagamento}
+                />
             </Container>
         </>
     );
