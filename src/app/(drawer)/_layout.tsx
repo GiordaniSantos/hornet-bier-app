@@ -139,6 +139,15 @@ const DrawerLayout = () => (
         drawerIcon: ({ size, color }) => <FontAwesome5 name="building" size={size} color={color} />,
       }}
     />
+    <Drawer.Screen
+      name="pagamentos"
+      options={{
+        headerTitle: 'Pagamentos',
+        drawerLabel: 'Pagamentos',
+        drawerItemStyle: styles.drawerItemStyle,
+        drawerIcon: ({ size, color }) => <FontAwesome5 name="money-check-alt" size={size} color={color} />,
+      }}
+    />
   </Drawer>
 );
 
