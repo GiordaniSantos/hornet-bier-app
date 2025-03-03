@@ -1,6 +1,6 @@
 import { StyleSheet, FlatList, TouchableOpacity, Linking } from 'react-native';
 import { Container } from '@/src/components/Container';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import ListOrdemServicoSelect from '@/src/components/lists/ListOrdemServicoSelect';
 import { useEffect, useState } from 'react';
 import api from '@/src/services/api';
@@ -128,9 +128,16 @@ export default function Select() {
                     }
                 />
                 {selectedIds.length >= 1 && 
-                    <TouchableOpacity style={styles.addButton} onPress={() => {enviarOrcamentosWhatsapp(selectedIds)}} activeOpacity={0.7}>
-                        <FontAwesome5 name="whatsapp" size={20} color={'#FFF'} />
-                    </TouchableOpacity>
+                    (
+                        <>
+                            <TouchableOpacity style={styles.paymentButton} onPress={() => {enviarOrcamentosWhatsapp(selectedIds)}} activeOpacity={0.7}>
+                                <MaterialIcons name="attach-money" size={20} color={'#FFF'} />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.whatsappButton} onPress={() => {enviarOrcamentosWhatsapp(selectedIds)}} activeOpacity={0.7}>
+                                <FontAwesome5 name="whatsapp" size={20} color={'#FFF'} />
+                            </TouchableOpacity>
+                        </>
+                    )
                 }
             </Container>
         </>
@@ -138,7 +145,18 @@ export default function Select() {
 }
 
 const styles = StyleSheet.create({
-    addButton: {
+    paymentButton: {
+        position: 'absolute',
+        right: 15,
+        bottom: 90,
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: '#000',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    whatsappButton: {
         position: 'absolute',
         right: 15,
         bottom: 30,

@@ -1,5 +1,5 @@
 import { StyleSheet, View, Text, TouchableOpacity, Linking } from 'react-native';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import { Link, router } from 'expo-router';
 import { showSweetAlert } from '../sweetAlert';
 import api from '@/src/services/api';
@@ -18,9 +18,11 @@ interface OrdemServico {
 
 interface ListOrdemServicoProps {
   ordemServico: OrdemServico;
+  setModalVisible: any;
+  setSelectedId: any;
 }
 
-export default function ListOrdemServico({ordemServico}: ListOrdemServicoProps) {
+export default function ListOrdemServico({ordemServico, setModalVisible, setSelectedId}: ListOrdemServicoProps) {
   const getStatusStyle = (status:string) => {
     switch (status) {
       case 'Aberto':
@@ -118,6 +120,12 @@ export default function ListOrdemServico({ordemServico}: ListOrdemServicoProps) 
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={() => {enviarOrcamentoWhatsapp(ordemServico.id)}}>
             <FontAwesome5 name="whatsapp" size={14} color={'#000'} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={() => {
+            setSelectedId(ordemServico.id)
+            setModalVisible(true)
+            }}>
+            <MaterialIcons name="attach-money" size={16} color={'#000'} />
           </TouchableOpacity>
         </View>
       </View>

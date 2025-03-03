@@ -1,5 +1,5 @@
 import { router, Stack } from 'expo-router';
-import { StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, TouchableOpacity, FlatList, Linking } from 'react-native';
 import { Container } from '@/src/components/Container';
 import { FontAwesome5, AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import ListOrdemServico from '@/src/components/lists/ListOrdemServico';
@@ -8,6 +8,7 @@ import api from '@/src/services/api';
 import Loading from '@/src/components/LoadingPage';
 import { ShowAlertErroResponseApi } from '@/src/components/ShowAlertErrorResponseApi';
 import { Dropdown } from 'react-native-element-dropdown';
+import ModalTaxaPagamento from '@/src/components/ModalTaxaPagamento';
 
 interface OrdemServico {
   id: number;
@@ -30,6 +31,9 @@ interface Status {
 }
 
 export default function Home() {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [SelectedId, setSelectedId] = useState();
+
   const [data, setData] = useState<OrdemServico[]>([]);
   const [page, setPage] = useState(1);
   const [hasMoreData, setHasMoreData] = useState(true);
@@ -38,6 +42,23 @@ export default function Home() {
   const [clienteId, setClienteId] = useState<number | null>(null);    
   const [status, setStatus] = useState<{ value: number; label: string }[]>([]);    
   const [statusSelected, setStatusSelected] = useState<string | null>('');
+
+  const enviarLinkPagamentoWhatsapp = async (id : number | undefined, taxa : number) => {
+    try {
+      const response = await api.get(`/pagamento/get-link-pagamento-whatsapp/${id}?taxa=${taxa}`);
+      const url = response.data;
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      }
+    } catch (e:any) {
+      ShowAlertErroResponseApi(e);
+    }
+  };
+
+  const handleConfirmLinkPagamento = (taxaSelecionada:number) => {
+    enviarLinkPagamentoWhatsapp(SelectedId, taxaSelecionada)
+  };
 
   const fetchRecursosFiltro = async () => {
     try {
@@ -150,7 +171,7 @@ export default function Home() {
         />
         <FlatList
           data={data}
-          renderItem={({ item }) => <ListOrdemServico ordemServico={item} />}
+          renderItem={({ item }) => <ListOrdemServico ordemServico={item} setModalVisible={setModalVisible} setSelectedId={setSelectedId} />}
           keyExtractor={item => item.id.toString()}
           onEndReached={fetchData}
           onEndReachedThreshold={0.1}
@@ -164,6 +185,11 @@ export default function Home() {
         <TouchableOpacity style={styles.addButton} onPress={() => {router.push("/ordem-servico/create")}} activeOpacity={0.7}>
           <FontAwesome5 name="plus" size={20} color={'#FFF'} />
         </TouchableOpacity>
+        <ModalTaxaPagamento
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          onConfirm={handleConfirmLinkPagamento}
+        />
       </Container>
     </>
   );
