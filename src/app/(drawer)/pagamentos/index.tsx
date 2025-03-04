@@ -21,10 +21,16 @@ export default function Pagamentos() {
     const [page, setPage] = useState(1);
     const [hasMoreData, setHasMoreData] = useState(true);
     const [loading, setLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
-	const fetchData = async () => {
-        if(!hasMoreData) return
+	const fetchData = async (isRefresh = false) => {
+        if (!hasMoreData && !isRefresh) return;
         setLoading(true);
+        if (isRefresh) {
+            setRefreshing(true);
+            setPage(1);
+            setData([]);
+        }
         try {
             const response = await api.get(`/pagamento?page=${page}`);
 
@@ -39,6 +45,9 @@ export default function Pagamentos() {
             ShowAlertErroResponseApi(e);
         } finally {
             setLoading(false);
+            if (isRefresh) {
+                setRefreshing(false);
+            }
         }
     };
 
@@ -59,6 +68,8 @@ export default function Pagamentos() {
                     ListFooterComponent={
                         <Loading loading={loading} />
                     }
+                    refreshing={refreshing}
+                    onRefresh={() => fetchData(true)}
                 />
             </Container>
         </>
