@@ -71,10 +71,8 @@ export default function Select() {
         try {
             const response = await api.post(`/ordem-servico/get-url-multiplo-orcamento-whatsapp`, {ids: ids});
             const url = response.data.url;
-            const supported = await Linking.canOpenURL(url);
-            if (supported) {
-                await Linking.openURL(url);
-            }
+            
+            await Linking.openURL(url);
         } catch (e:any) {
             ShowAlertErroResponseApi(e);
         }
@@ -84,10 +82,8 @@ export default function Select() {
         try {
             const response = await api.post(`/pagamento/get-link-multiplo-pagamento-whatsapp?taxa=${taxa}`, {ids: ids});
             const url = response.data.url;
-            const supported = await Linking.canOpenURL(url);
-            if (supported) {
-                await Linking.openURL(url);
-            }
+
+            await Linking.openURL(url);
         } catch (e:any) {
             ShowAlertErroResponseApi(e);
         }

@@ -72,10 +72,9 @@ export default function ListOrdemServico({ordemServico, setModalVisible, setSele
     try {
       const response = await api.get(`/ordem-servico/get-url-orcamento-whatsapp/${id}`);
       const url = response.data;
-      const supported = await Linking.canOpenURL(url);
-      if (supported) {
+     
         await Linking.openURL(url);
-      }
+      
     } catch (e:any) {
       ShowAlertErroResponseApi(e);
     }

@@ -47,10 +47,8 @@ export default function Home() {
     try {
       const response = await api.get(`/pagamento/get-link-pagamento-whatsapp/${id}?taxa=${taxa}`);
       const url = response.data;
-      const supported = await Linking.canOpenURL(url);
-      if (supported) {
-        await Linking.openURL(url);
-      }
+   
+      await Linking.openURL(url);
     } catch (e:any) {
       ShowAlertErroResponseApi(e);
     }
