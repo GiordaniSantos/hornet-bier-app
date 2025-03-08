@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "HornetBier",
+    "name": "Hornet Bier",
     "slug": "HornetBier",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -20,7 +20,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000000"
-      }
+      },
+      "package": "com.giordanisilveira.HornetBier"
     },
     "web": {
       "bundler": "metro",
@@ -32,6 +33,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "823d5895-36f6-439d-b52d-dd1ced1d7e5d"
+      }
     }
   }
 }
